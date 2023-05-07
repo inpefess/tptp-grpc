@@ -1,0 +1,57 @@
+/*
+ *  Copyright 2023 Boris Shminke
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+*/
+syntax = "proto3";
+
+option java_multiple_files = true;
+package com.github.inpefess.tptp_grpc.tptp_proto;
+
+service TPTPCNFParser {
+  rpc ParseCNF (TPTPCNFString) returns (TPTPCNF) {}
+}
+
+message TPTPCNFString {
+  string tptp_cnf_string = 1;
+}
+
+message TPTPCNF {
+  message Variable {
+    string name = 1;
+  }
+
+  message Function {
+    string name = 1;
+    repeated Term argument = 2;
+  }
+
+  message Term {
+    oneof term {
+      Variable variable = 1;
+      Function function = 2;
+    }
+  }
+
+  message Predicate {
+    string name = 1;
+    repeated Term argument = 2;
+  }
+
+  message Literal {
+    bool negated = 1;
+    Predicate predicate = 2;
+  }
+
+  repeated Literal literal = 1;
+}

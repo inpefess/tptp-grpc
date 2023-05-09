@@ -21,6 +21,8 @@ plugins {
     id 'com.google.protobuf' version '0.9.1'
     // coverage
     id 'jacoco'
+    // for publishing on GitHub
+    id("maven-publish")
 }
 
 repositories {
@@ -88,4 +90,22 @@ protobuf {
       grpc {}
     }
   }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/inpefess/tptp-grpc")
+            credentials {
+                username = project.findProperty("gpr.user")
+                password = project.findProperty("gpr.key")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
 }

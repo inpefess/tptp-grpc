@@ -20,9 +20,9 @@ package com.github.inpefess.tptp_grpc.tptp2proto;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNF;
+import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
+import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
 import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFParserGrpc;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFString;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
@@ -89,8 +89,8 @@ public class TPTPCNFParserServer {
     }
 
     @Override
-    public void parseCNF(TPTPCNFString req, StreamObserver<TPTPCNF> responseObserver) {
-      responseObserver.onNext(tptp2ProtoParser.tptpCNF2Proto(req.getTptpCnfString()));
+    public void parseCNF(StringMessage req, StreamObserver<SaturationProofState> responseObserver) {
+      responseObserver.onNext(tptp2ProtoParser.tptpCNF2Proto(req.getStringMessage()));
       responseObserver.onCompleted();
     }
   }

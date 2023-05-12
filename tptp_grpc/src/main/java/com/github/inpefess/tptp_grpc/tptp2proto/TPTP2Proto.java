@@ -16,7 +16,13 @@
 package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import java.io.StringReader;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNF;
+import com.github.inpefess.tptp_grpc.tptp_proto.Clause;
+import com.github.inpefess.tptp_grpc.tptp_proto.Function;
+import com.github.inpefess.tptp_grpc.tptp_proto.Literal;
+import com.github.inpefess.tptp_grpc.tptp_proto.Predicate;
+import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
+import com.github.inpefess.tptp_grpc.tptp_proto.Term;
+import com.github.inpefess.tptp_grpc.tptp_proto.Variable;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -40,20 +46,22 @@ public class TPTP2Proto {
     setupParser();
   }
 
-  public TPTPCNF tptpCNF2Proto(String tptpCNFString) {
+  public SaturationProofState tptpCNF2Proto(String tptpCNFString) {
     Model result = (Model) parser.parse(new StringReader(tptpCNFString)).getRootASTElement();
     cnf_or clause = ((cnf_or) result.getTPTP_input().get(0).eContents().get(0).eContents().get(0));
-    return transform_clause(clause);
+    SaturationProofState.Builder saturationProofState = SaturationProofState.newBuilder();
+    saturationProofState.addClause(transform_clause(clause));
+    return saturationProofState.build();
   }
 
-  private TPTPCNF.Term transform_term(cnf_expression term) {
-    TPTPCNF.Term.Builder termProto = TPTPCNF.Term.newBuilder();
+  private Term transform_term(cnf_expression term) {
+    Term.Builder termProto = Term.newBuilder();
     if (term instanceof cnf_var) {
-      TPTPCNF.Variable.Builder variableProto = TPTPCNF.Variable.newBuilder();
+      Variable.Builder variableProto = Variable.newBuilder();
       variableProto.setName(((cnf_var) term).getName());
       termProto.setVariable(variableProto.build());
     } else {
-      TPTPCNF.Function.Builder functionProto = TPTPCNF.Function.newBuilder();
+      Function.Builder functionProto = Function.newBuilder();
       cnf_constant function = (cnf_constant) term;
       functionProto.setName(function.getName());
       for (cnf_expression argument : function.getParam()) {
@@ -64,8 +72,8 @@ public class TPTP2Proto {
     return termProto.build();
   }
 
-  private TPTPCNF.Predicate transform_predicate(cnf_equality predicate) {
-    TPTPCNF.Predicate.Builder predicateProto = TPTPCNF.Predicate.newBuilder();
+  private Predicate transform_predicate(cnf_equality predicate) {
+    Predicate.Builder predicateProto = Predicate.newBuilder();
     cnf_expression rightHandSide = predicate.getExpR();
     cnf_expression leftHandSide = predicate.getExpL();
     if (rightHandSide != null) {
@@ -85,10 +93,10 @@ public class TPTP2Proto {
     return predicateProto.build();
   }
 
-  private TPTPCNF transform_clause(cnf_or clause) {
-    TPTPCNF.Builder clauseProto = TPTPCNF.newBuilder();
+  private Clause transform_clause(cnf_or clause) {
+    Clause.Builder clauseProto = Clause.newBuilder();
     for (cnf_not literal : clause.getOr()) {
-      TPTPCNF.Literal.Builder literalProto = TPTPCNF.Literal.newBuilder();
+      Literal.Builder literalProto = Literal.newBuilder();
       literalProto.setNegated(literal.isNegated());
       literalProto.setPredicate(transform_predicate(literal.getLiteral()));
       clauseProto.addLiteral(literalProto.build());

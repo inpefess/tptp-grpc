@@ -19,39 +19,43 @@ option java_multiple_files = true;
 package com.github.inpefess.tptp_grpc.tptp_proto;
 
 service TPTPCNFParser {
-  rpc ParseCNF (TPTPCNFString) returns (TPTPCNF) {}
+  rpc ParseCNF (StringMessage) returns (SaturationProofState) {}
 }
 
-message TPTPCNFString {
-  string tptp_cnf_string = 1;
+message StringMessage {
+  string string_message = 1;
 }
 
-message TPTPCNF {
-  message Variable {
-    string name = 1;
-  }
+message Variable {
+  string name = 1;
+}
 
-  message Function {
-    string name = 1;
-    repeated Term argument = 2;
-  }
+message Function {
+  string name = 1;
+  repeated Term argument = 2;
+}
 
-  message Term {
-    oneof term {
-      Variable variable = 1;
-      Function function = 2;
-    }
+message Term {
+  oneof term {
+    Variable variable = 1;
+    Function function = 2;
   }
+}
 
-  message Predicate {
-    string name = 1;
-    repeated Term argument = 2;
-  }
+message Predicate {
+  string name = 1;
+  repeated Term argument = 2;
+}
 
-  message Literal {
-    bool negated = 1;
-    Predicate predicate = 2;
-  }
+message Literal {
+  bool negated = 1;
+  Predicate predicate = 2;
+}
 
+message Clause {
   repeated Literal literal = 1;
+}
+
+message SaturationProofState {
+  repeated Clause clause = 1;
 }

@@ -17,7 +17,7 @@ package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNF;
+import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
 import org.junit.jupiter.api.Test;
 
 class TPTP2ProtoTest {
@@ -25,6 +25,6 @@ class TPTP2ProtoTest {
   void tptpCNF2ProtoTest() throws IOException {
     TPTP2Proto tptp2Proto = new TPTP2Proto();
     assertEquals(tptp2Proto.tptpCNF2Proto("cnf(test, axiom, ~ p(f(X, g(Y, Z))) | X = Y | $false)."),
-        TPTPCNF.parseFrom(this.getClass().getResourceAsStream("/test_cnf.pb")));
+        SaturationProofState.parseFrom(this.getClass().getResourceAsStream("/test_cnf.pb")));
   }
 }

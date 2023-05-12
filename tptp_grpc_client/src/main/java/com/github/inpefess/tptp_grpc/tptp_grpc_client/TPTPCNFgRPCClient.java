@@ -16,18 +16,19 @@
  */
 
 package com.github.inpefess.tptp_grpc.tptp_grpc_client;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFString;
 
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import com.github.inpefess.tptp_grpc.tptp2proto.TPTPCNFParserServer;
+import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
+import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
+import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFParserGrpc;
 import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFParserGrpc;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNF;
 
 /**
  * A simple client that requests to parse a TPTP CNF string from the {@link TPTPCNFParserServer}.
@@ -49,8 +50,8 @@ public class TPTPCNFgRPCClient {
   /** Send a string to parse to server. */
   public void parseCNF(String name) {
     logger.info("Will try to parse " + name + " ...");
-    TPTPCNFString request = TPTPCNFString.newBuilder().setTptpCnfString(name).build();
-    TPTPCNF response;
+    StringMessage request = StringMessage.newBuilder().setStringMessage(name).build();
+    SaturationProofState response;
     try {
       response = blockingStub.parseCNF(request);
     } catch (StatusRuntimeException e) {
@@ -73,7 +74,8 @@ public class TPTPCNFgRPCClient {
       if ("--help".equals(args[0])) {
         System.err.println("Usage: [cnfString [target]]");
         System.err.println("");
-        System.err.println("  cnfString    The TPTP CNF string you wish to parse. Defaults to " + cnfString);
+        System.err.println(
+            "  cnfString    The TPTP CNF string you wish to parse. Defaults to " + cnfString);
         System.err.println("  target  The server to connect to. Defaults to " + target);
         System.exit(1);
       }
@@ -89,8 +91,8 @@ public class TPTPCNFgRPCClient {
     //
     // For the example we use plaintext insecure credentials to avoid needing TLS certificates. To
     // use TLS, use TlsChannelCredentials instead.
-    ManagedChannel channel = Grpc.newChannelBuilder(target, InsecureChannelCredentials.create())
-        .build();
+    ManagedChannel channel =
+        Grpc.newChannelBuilder(target, InsecureChannelCredentials.create()).build();
     try {
       TPTPCNFgRPCClient client = new TPTPCNFgRPCClient(channel);
       client.parseCNF(cnfString);

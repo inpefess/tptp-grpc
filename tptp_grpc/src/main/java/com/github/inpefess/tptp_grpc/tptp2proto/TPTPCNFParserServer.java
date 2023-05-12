@@ -17,12 +17,14 @@
 
 package com.github.inpefess.tptp_grpc.tptp2proto;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNF;
+import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
+import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
 import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFParserGrpc;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFString;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
@@ -85,13 +87,18 @@ public class TPTPCNFParserServer {
     private TPTP2Proto tptp2ProtoParser;
 
     public TPTPCNFParserImpl() {
-      tptp2ProtoParser = new TPTP2Proto();
+      tptp2ProtoParser = new TPTP2Proto("");
     }
 
     @Override
-    public void parseCNF(TPTPCNFString req, StreamObserver<TPTPCNF> responseObserver) {
-      responseObserver.onNext(tptp2ProtoParser.tptpCNF2Proto(req.getTptpCnfString()));
-      responseObserver.onCompleted();
+    public void parseCNF(StringMessage req, StreamObserver<SaturationProofState> responseObserver) {
+      try {
+        responseObserver
+            .onNext(tptp2ProtoParser.tptpCNF2Proto(new StringReader(req.getStringMessage())));
+        responseObserver.onCompleted();
+      } catch (FileNotFoundException e) {
+        logger.severe(e.getMessage());
+      }
     }
   }
 }

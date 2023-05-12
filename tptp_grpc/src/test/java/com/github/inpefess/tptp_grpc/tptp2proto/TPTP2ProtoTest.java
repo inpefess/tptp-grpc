@@ -17,14 +17,18 @@ package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
 import org.junit.jupiter.api.Test;
 
 class TPTP2ProtoTest {
   @Test
-  void tptpCNF2ProtoTest() throws IOException {
-    TPTP2Proto tptp2Proto = new TPTP2Proto();
-    assertEquals(tptp2Proto.tptpCNF2Proto("cnf(test, axiom, ~ p(f(X, g(Y, Z))) | X = Y | $false)."),
+  void tptpCNF2ProtoTest() throws IOException, Exception {
+    TPTP2Proto tptp2Proto = new TPTP2Proto(this.getClass().getResource("/TPTP-mock").getPath());
+    InputStream testProblem =
+        this.getClass().getResourceAsStream("/TPTP-mock/Problems/TST/TST001-1.p");
+    assertEquals(tptp2Proto.tptpCNF2Proto(new InputStreamReader(testProblem)),
         SaturationProofState.parseFrom(this.getClass().getResourceAsStream("/test_cnf.pb")));
   }
 }

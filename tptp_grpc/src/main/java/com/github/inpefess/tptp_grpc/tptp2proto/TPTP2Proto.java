@@ -15,7 +15,11 @@
 */
 package com.github.inpefess.tptp_grpc.tptp2proto;
 
-import java.io.StringReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
+import java.nio.file.Paths;
 import com.github.inpefess.tptp_grpc.tptp_proto.Clause;
 import com.github.inpefess.tptp_grpc.tptp_proto.Function;
 import com.github.inpefess.tptp_grpc.tptp_proto.Literal;
@@ -28,29 +32,41 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.theoremsandstuff.tptp.ParserRuntimeModule;
 import com.theoremsandstuff.tptp.ParserStandaloneSetup;
-import com.theoremsandstuff.tptp.parser.Model;
 import com.theoremsandstuff.tptp.parser.cnf_constant;
 import com.theoremsandstuff.tptp.parser.cnf_equality;
 import com.theoremsandstuff.tptp.parser.cnf_expression;
 import com.theoremsandstuff.tptp.parser.cnf_not;
 import com.theoremsandstuff.tptp.parser.cnf_or;
+import com.theoremsandstuff.tptp.parser.cnf_root;
 import com.theoremsandstuff.tptp.parser.cnf_var;
+import com.theoremsandstuff.tptp.parser.include;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.parser.IParser;
 
 public class TPTP2Proto {
   @Inject
   private IParser parser;
   Injector injector = Guice.createInjector(new ParserRuntimeModule());
+  private String tptpPath;
 
-  public TPTP2Proto() {
+  public TPTP2Proto(String tptpPath) {
+    this.tptpPath = tptpPath;
     setupParser();
   }
 
-  public SaturationProofState tptpCNF2Proto(String tptpCNFString) {
-    Model result = (Model) parser.parse(new StringReader(tptpCNFString)).getRootASTElement();
-    cnf_or clause = ((cnf_or) result.getTPTP_input().get(0).eContents().get(0).eContents().get(0));
+  public SaturationProofState tptpCNF2Proto(Reader reader) throws FileNotFoundException {
     SaturationProofState.Builder saturationProofState = SaturationProofState.newBuilder();
-    saturationProofState.addClause(transform_clause(clause));
+    for (EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
+      if (entry instanceof cnf_root) {
+        cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
+        saturationProofState.addClause(transform_clause(clause));
+      }
+      if (entry instanceof include) {
+        File includedFile = Paths.get(tptpPath, ((include) entry).getPath()).toFile();
+        SaturationProofState includedState = tptpCNF2Proto(new FileReader(includedFile));
+        saturationProofState.addAllClause(includedState.getClauseList());
+      }
+    }
     return saturationProofState.build();
   }
 

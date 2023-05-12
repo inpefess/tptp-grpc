@@ -11,7 +11,7 @@ This project uses an exising [TPTP parser](https://github.com/marklemay/tptpPars
 
 # How to install
 
-This project uses Java 11. , generate GitHub [personal access token](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages). 
+This project uses Java 11. To get the Maven package, first generate GitHub [personal access token](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages).
 
 For [Gradle](https://gradle.org/), add you GitHub user name as `gpr.user` and you personal access token as `grp.key` to `gradle.properties`. Maven, sbt or others should provide similar options for package registry authentication.
 
@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'tptp-grpc:tptp_grpc:0.0.1'
+    implementation 'tptp-grpc:tptp_grpc:0.0.2'
 
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     implementation 'com.google.protobuf:protobuf-java:3.23.0'
@@ -47,9 +47,9 @@ dependencies {
 import com.github.inpefess.tptp_grpc.tptp2proto.TPTP2Proto;
 
 class App {
-    public static void main(String[] args) {
-      System.out.println((new TPTP2Proto()).tptpCNF2Proto("cnf(test,axiom,$false).").toString());
-    }
+  public static void main(String[] args) {
+    System.out.println((new TPTP2Proto()).tptpCNF2Proto("cnf(test,axiom,$false).").toString());
+  }
 }
 ```
 

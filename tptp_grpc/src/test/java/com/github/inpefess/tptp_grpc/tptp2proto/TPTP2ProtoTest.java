@@ -16,6 +16,7 @@
 package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 class TPTP2ProtoTest {
   @Test
-  void tptpCNF2ProtoTest() throws IOException, Exception {
+  void tptpCNF2ProtoTest() throws FileNotFoundException, IOException {
     TPTP2Proto tptp2Proto = new TPTP2Proto(this.getClass().getResource("/TPTP-mock").getPath());
     InputStream testProblem =
         this.getClass().getResourceAsStream("/TPTP-mock/Problems/TST/TST001-1.p");

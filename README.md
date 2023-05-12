@@ -45,12 +45,13 @@ dependencies {
 
 ```Java
 import com.github.inpefess.tptp_grpc.tptp2proto.TPTP2Proto;
+import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
 
-class App {
-  public static void main(String[] args) {
-    System.out.println((new TPTP2Proto()).tptpCNF2Proto("cnf(test,axiom,$false).").toString());
-  }
-}
+// if you parse single CNF statements, you can set an empty string
+TPTP2Proto tptp2Proto = new TPTP2Proto("path to TPTP root folder");
+// or read a file using FileReader
+StringReader cnfReader = new StringReader("cnf(test,axiom,$false).");
+SaturationProofState parsedProto = tptp2Proto.tptpCNF2Proto(cnfReader);
 ```
 
 # How to run the server

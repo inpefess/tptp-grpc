@@ -20,6 +20,7 @@ package com.github.inpefess.tptp_grpc.tptp2proto;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
@@ -87,7 +88,8 @@ public class TPTPCNFParserServer {
     private TPTP2Proto tptp2ProtoParser;
 
     public TPTPCNFParserImpl() {
-      tptp2ProtoParser = new TPTP2Proto("");
+      String tptpPath = Paths.get(System.getenv("HOME"), "data", "TPTP-v8.1.2").toString();
+      tptp2ProtoParser = new TPTP2Proto(tptpPath);
     }
 
     @Override

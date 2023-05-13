@@ -73,5 +73,5 @@ Start the server:
 Then from a different terminal start an example Java client:
 
 ```sh
-./gradlew tptp_grpc_client:run
+./gradlew run -PmainClassToRun=com.github.inpefess.tptp_grpc.tptp2proto.TPTPCNFgRPCClient
 ```

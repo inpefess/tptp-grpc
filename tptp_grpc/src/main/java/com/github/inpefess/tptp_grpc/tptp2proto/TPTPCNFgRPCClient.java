@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package com.github.inpefess.tptp_grpc.tptp_grpc_client;
+package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp2proto.TPTPCNFParserServer;
 import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
 import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
 import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFParserGrpc;

@@ -60,7 +60,11 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.github.inpefess.tptp_grpc.tptp2proto.TPTPCNFParserServer'
+    mainClass = (
+        project.hasProperty("mainClassToRun") ?
+        project.findProperty("mainClassToRun").toString() :
+        'com.github.inpefess.tptp_grpc.tptp2proto.TPTPCNFParserServer'
+   )
 }
 
 tasks.named('test') {

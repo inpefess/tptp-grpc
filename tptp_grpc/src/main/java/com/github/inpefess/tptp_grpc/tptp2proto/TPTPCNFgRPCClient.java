@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-package com.github.inpefess.tptp_grpc.tptp_grpc_client;
+package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp2proto.TPTPCNFParserServer;
 import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
 import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
 import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFParserGrpc;
@@ -28,7 +26,6 @@ import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
-import io.grpc.StatusRuntimeException;
 
 /**
  * A simple client that requests to parse a TPTP CNF string from the {@link TPTPCNFParserServer}.
@@ -48,17 +45,11 @@ public class TPTPCNFgRPCClient {
   }
 
   /** Send a string to parse to server. */
-  public void parseCNF(String name) {
-    logger.info("Will try to parse " + name + " ...");
+  public SaturationProofState parseCNF(String name) {
     StringMessage request = StringMessage.newBuilder().setStringMessage(name).build();
     SaturationProofState response;
-    try {
-      response = blockingStub.parseCNF(request);
-    } catch (StatusRuntimeException e) {
-      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-      return;
-    }
-    logger.info("Parsing result: " + response.toString());
+    response = blockingStub.parseCNF(request);
+    return response;
   }
 
   /**
@@ -94,8 +85,9 @@ public class TPTPCNFgRPCClient {
     ManagedChannel channel =
         Grpc.newChannelBuilder(target, InsecureChannelCredentials.create()).build();
     try {
+      logger.info("Parsing string: " + cnfString);
       TPTPCNFgRPCClient client = new TPTPCNFgRPCClient(channel);
-      client.parseCNF(cnfString);
+      logger.info("Parsing result: " + client.parseCNF(cnfString).toString());
     } finally {
       // ManagedChannels use resources like threads and TCP connections. To prevent leaking these
       // resources the channel should be shut down when it will no longer be used. If it may be used

@@ -63,7 +63,7 @@ application {
     mainClass = (
         project.hasProperty("mainClassToRun") ?
         project.findProperty("mainClassToRun").toString() :
-        'com.github.inpefess.tptp_grpc.tptp2proto.TPTPCNFParserServer'
+        'com.github.inpefess.tptp_grpc.tptp2proto.TPTPParserServer'
    )
 }
 

@@ -18,8 +18,8 @@ syntax = "proto3";
 option java_multiple_files = true;
 package com.github.inpefess.tptp_grpc.tptp_proto;
 
-service TPTPCNFParser {
-  rpc ParseCNF (StringMessage) returns (SaturationProofState) {}
+service TPTPParser {
+  rpc parseTPTP (StringMessage) returns (Function) {}
 }
 
 message StringMessage {
@@ -40,22 +40,4 @@ message Term {
     Variable variable = 1;
     Function function = 2;
   }
-}
-
-message Predicate {
-  string name = 1;
-  repeated Term argument = 2;
-}
-
-message Literal {
-  bool negated = 1;
-  Predicate predicate = 2;
-}
-
-message Clause {
-  repeated Literal literal = 1;
-}
-
-message SaturationProofState {
-  repeated Clause clause = 1;
 }

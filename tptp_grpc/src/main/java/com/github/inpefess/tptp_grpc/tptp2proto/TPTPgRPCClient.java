@@ -19,41 +19,41 @@ package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
+import com.github.inpefess.tptp_grpc.tptp_proto.Function;
 import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPCNFParserGrpc;
+import com.github.inpefess.tptp_grpc.tptp_proto.TPTPParserGrpc;
 import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
 
 /**
- * A simple client that requests to parse a TPTP CNF string from the {@link TPTPCNFParserServer}.
+ * A simple client that requests to parse a TPTP string from the {@link TPTPParserServer}.
  */
-public class TPTPCNFgRPCClient {
-  private static final Logger logger = Logger.getLogger(TPTPCNFgRPCClient.class.getName());
+public class TPTPgRPCClient {
+  private static final Logger logger = Logger.getLogger(TPTPgRPCClient.class.getName());
 
-  private final TPTPCNFParserGrpc.TPTPCNFParserBlockingStub blockingStub;
+  private final TPTPParserGrpc.TPTPParserBlockingStub blockingStub;
 
-  /** Construct client for accessing TPTPCNFParserServer using the existing channel. */
-  public TPTPCNFgRPCClient(Channel channel) {
+  /** Construct client for accessing TPTPParserServer using the existing channel. */
+  public TPTPgRPCClient(Channel channel) {
     // 'channel' here is a Channel, not a ManagedChannel, so it is not this code's responsibility to
     // shut it down.
 
     // Passing Channels to code makes code easier to test and makes it easier to reuse Channels.
-    blockingStub = TPTPCNFParserGrpc.newBlockingStub(channel);
+    blockingStub = TPTPParserGrpc.newBlockingStub(channel);
   }
 
   /** Send a string to parse to server. */
-  public SaturationProofState parseCNF(String name) {
-    StringMessage request = StringMessage.newBuilder().setStringMessage(name).build();
-    SaturationProofState response;
-    response = blockingStub.parseCNF(request);
+  public Function parseTPTP(String tptpString) {
+    StringMessage request = StringMessage.newBuilder().setStringMessage(tptpString).build();
+    Function response;
+    response = blockingStub.parseTPTP(request);
     return response;
   }
 
   /**
-   * Parse CNF. If provided, the first element of {@code args} is the TPTP CNF string to parse.
+   * Parse . If provided, the first element of {@code args} is the TPTP  string to parse.
    * The second argument is the target server.
    */
   public static void main(String[] args) throws Exception {
@@ -66,7 +66,7 @@ public class TPTPCNFgRPCClient {
         System.err.println("Usage: [cnfString [target]]");
         System.err.println("");
         System.err.println(
-            "  cnfString    The TPTP CNF string you wish to parse. Defaults to " + cnfString);
+            "  cnfString    The TPTP  string you wish to parse. Defaults to " + cnfString);
         System.err.println("  target  The server to connect to. Defaults to " + target);
         System.exit(1);
       }
@@ -86,8 +86,8 @@ public class TPTPCNFgRPCClient {
         Grpc.newChannelBuilder(target, InsecureChannelCredentials.create()).build();
     try {
       logger.info("Parsing string: " + cnfString);
-      TPTPCNFgRPCClient client = new TPTPCNFgRPCClient(channel);
-      logger.info("Parsing result: " + client.parseCNF(cnfString).toString());
+      TPTPgRPCClient client = new TPTPgRPCClient(channel);
+      logger.info("Parsing result: " + client.parseTPTP(cnfString).toString());
     } finally {
       // ManagedChannels use resources like threads and TCP connections. To prevent leaking these
       // resources the channel should be shut down when it will no longer be used. If it may be used

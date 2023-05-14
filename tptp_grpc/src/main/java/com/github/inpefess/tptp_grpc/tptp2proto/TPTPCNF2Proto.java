@@ -22,7 +22,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Scanner;
-import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
+import com.github.inpefess.tptp_grpc.tptp_proto.Function;
 
 class TPTPCNF2Proto {
   public static void main(String[] args) throws IOException {
@@ -31,9 +31,9 @@ class TPTPCNF2Proto {
     int fileIndex = 0;
     while (problemList.hasNextLine()) {
       String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
-      SaturationProofState parsedCNF =
-          tptp2Proto.tptpCNF2Proto(new FileReader(problemList.nextLine()));
-      parsedCNF.writeDelimitedTo(new FileOutputStream(outputFilename));
+      Function parsedTPTP =
+          tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
+      parsedTPTP.writeDelimitedTo(new FileOutputStream(outputFilename));
     }
   }
 }

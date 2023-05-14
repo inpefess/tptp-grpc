@@ -45,13 +45,13 @@ dependencies {
 
 ```Java
 import com.github.inpefess.tptp_grpc.tptp2proto.TPTP2Proto;
-import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
+import com.github.inpefess.tptp_grpc.tptp_proto.Function;
 
-// if you parse single CNF statements, you can set an empty string
+// if you parse single statements, you can set an empty string
 TPTP2Proto tptp2Proto = new TPTP2Proto("path to TPTP root folder");
 // or read a file using FileReader
 StringReader cnfReader = new StringReader("cnf(test,axiom,$false).");
-SaturationProofState parsedProto = tptp2Proto.tptpCNF2Proto(cnfReader);
+Function parsedProto = tptp2Proto.tptp2Proto(cnfReader);
 ```
 
 # How to run the server
@@ -73,5 +73,5 @@ Start the server:
 Then from a different terminal start an example Java client:
 
 ```sh
-./gradlew run -PmainClassToRun=com.github.inpefess.tptp_grpc.tptp2proto.TPTPCNFgRPCClient
+./gradlew run -PmainClassToRun=com.github.inpefess.tptp_grpc.tptp2proto.TPTPgRPCClient
 ```

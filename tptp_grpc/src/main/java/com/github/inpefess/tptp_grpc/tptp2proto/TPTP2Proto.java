@@ -20,11 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.nio.file.Paths;
-import com.github.inpefess.tptp_grpc.tptp_proto.Clause;
 import com.github.inpefess.tptp_grpc.tptp_proto.Function;
-import com.github.inpefess.tptp_grpc.tptp_proto.Literal;
-import com.github.inpefess.tptp_grpc.tptp_proto.Predicate;
-import com.github.inpefess.tptp_grpc.tptp_proto.SaturationProofState;
 import com.github.inpefess.tptp_grpc.tptp_proto.Term;
 import com.github.inpefess.tptp_grpc.tptp_proto.Variable;
 import com.google.inject.Guice;
@@ -54,20 +50,21 @@ public class TPTP2Proto {
     setupParser();
   }
 
-  public SaturationProofState tptpCNF2Proto(Reader reader) throws FileNotFoundException {
-    SaturationProofState.Builder saturationProofState = SaturationProofState.newBuilder();
+  public Function tptp2Proto(Reader reader) throws FileNotFoundException {
+    Function.Builder parsedTPTP = Function.newBuilder();
+    parsedTPTP.setName("$$$and");
     for (EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
       if (entry instanceof cnf_root) {
         cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
-        saturationProofState.addClause(transform_clause(clause));
+        parsedTPTP.addArgument(Term.newBuilder().setFunction(transform_clause(clause)));
       }
       if (entry instanceof include) {
         File includedFile = Paths.get(tptpPath, ((include) entry).getPath()).toFile();
-        SaturationProofState includedState = tptpCNF2Proto(new FileReader(includedFile));
-        saturationProofState.addAllClause(includedState.getClauseList());
+        Function includedFunction = tptp2Proto(new FileReader(includedFile));
+        parsedTPTP.addAllArgument(includedFunction.getArgumentList());
       }
     }
-    return saturationProofState.build();
+    return parsedTPTP.build();
   }
 
   private Term transform_term(cnf_expression term) {
@@ -88,8 +85,8 @@ public class TPTP2Proto {
     return termProto.build();
   }
 
-  private Predicate transform_predicate(cnf_equality predicate) {
-    Predicate.Builder predicateProto = Predicate.newBuilder();
+  private Function transform_predicate(cnf_equality predicate) {
+    Function.Builder predicateProto = Function.newBuilder();
     cnf_expression rightHandSide = predicate.getExpR();
     cnf_expression leftHandSide = predicate.getExpL();
     if (rightHandSide != null) {
@@ -109,13 +106,19 @@ public class TPTP2Proto {
     return predicateProto.build();
   }
 
-  private Clause transform_clause(cnf_or clause) {
-    Clause.Builder clauseProto = Clause.newBuilder();
+  private Function transform_clause(cnf_or clause) {
+    Function.Builder clauseProto = Function.newBuilder();
+    clauseProto.setName("$$$or");
     for (cnf_not literal : clause.getOr()) {
-      Literal.Builder literalProto = Literal.newBuilder();
-      literalProto.setNegated(literal.isNegated());
-      literalProto.setPredicate(transform_predicate(literal.getLiteral()));
-      clauseProto.addLiteral(literalProto.build());
+      Function literalProto = transform_predicate(literal.getLiteral());
+      if (literal.isNegated()) {
+        Function.Builder negatedLiteral = Function.newBuilder();
+        negatedLiteral.setName("$$$not");
+        negatedLiteral.addArgument(Term.newBuilder().setFunction(literalProto));
+        clauseProto.addArgument(Term.newBuilder().setFunction(negatedLiteral.build()));
+      } else {
+        clauseProto.addArgument(Term.newBuilder().setFunction(literalProto));
+      }
     }
     return clauseProto.build();
   }

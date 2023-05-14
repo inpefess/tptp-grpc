@@ -16,10 +16,14 @@
 package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Paths;
+import java.util.Scanner;
 import com.github.inpefess.tptp_grpc.tptp_proto.Function;
 import com.github.inpefess.tptp_grpc.tptp_proto.Term;
 import com.github.inpefess.tptp_grpc.tptp_proto.Variable;
@@ -126,5 +130,16 @@ public class TPTP2Proto {
   private void setupParser() {
     Injector injector = new ParserStandaloneSetup().createInjectorAndDoEMFRegistration();
     injector.injectMembers(this);
+  }
+
+  public static void main(String[] args) throws IOException {
+    TPTP2Proto tptp2Proto = new TPTP2Proto(args[0]);
+    Scanner problemList = new Scanner(new FileInputStream(args[1]));
+    int fileIndex = 0;
+    while (problemList.hasNextLine()) {
+      String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
+      Function parsedTPTP = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
+      parsedTPTP.writeDelimitedTo(new FileOutputStream(outputFilename));
+    }
   }
 }

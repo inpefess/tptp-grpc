@@ -15,18 +15,13 @@
 */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
-    // for gRPC
     id 'com.google.protobuf' version '0.9.1'
-    // coverage
     id 'jacoco'
-    // for publishing on GitHub
-    id("maven-publish")
+    id 'maven-publish'
 }
 
 repositories {
-    // Use Maven Central for resolving dependencies.
     mavenCentral()
     // TPTP parser https://github.com/marklemay/tptpParser
     maven {

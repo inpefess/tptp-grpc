@@ -75,3 +75,17 @@ Then from a different terminal start an example Java client:
 ```sh
 ./gradlew run -PmainClassToRun=com.github.inpefess.tptp_grpc.tptp2proto.TPTPgRPCClient
 ```
+
+# To run a bulck parsing
+
+Prepare the list of problems and the output folder, e.g.:
+
+```sh
+find $TPTP_ROOT/Problems/*/*-*.p > problem-list.txt
+mkdir output
+```
+
+Then run the parsing script:
+```sh
+./gradlew run -PmainClassToRun=com.github.inpefess.tptp_grpc.tptp2proto.TPTP2Proto --args="$TPTP_ROOT absolute_path_to_problem-list.txt absolute_path_to_output_folder"
+```

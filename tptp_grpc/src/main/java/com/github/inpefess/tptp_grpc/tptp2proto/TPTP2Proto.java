@@ -139,7 +139,7 @@ public class TPTP2Proto {
     while (problemList.hasNextLine()) {
       String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
       Function parsedTPTP = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
-      parsedTPTP.writeDelimitedTo(new FileOutputStream(outputFilename));
+      parsedTPTP.writeTo(new FileOutputStream(outputFilename));
     }
   }
 }

@@ -81,7 +81,7 @@ Then from a different terminal start an example Java client:
 Prepare the list of problems and the output folder, e.g.:
 
 ```sh
-find $TPTP_ROOT/Problems/*/*-*.p | xargs -I {} grep -L "^%.*Status.*:.*Satisfiable.*" {} > problem-list.txt
+find $TPTP_ROOT/Problems/*/*-*.p | grep -vE "(SYN|HWV)" > problem-list.txt
 mkdir output
 ```
 

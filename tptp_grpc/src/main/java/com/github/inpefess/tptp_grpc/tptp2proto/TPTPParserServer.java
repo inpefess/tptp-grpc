@@ -23,7 +23,7 @@ import java.io.StringReader;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp_proto.Function;
+import com.github.inpefess.tptp_grpc.tptp_proto.Node;
 import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
 import com.github.inpefess.tptp_grpc.tptp_proto.TPTPParserGrpc;
 import io.grpc.Grpc;
@@ -93,7 +93,7 @@ public class TPTPParserServer {
     }
 
     @Override
-    public void parseTPTP(StringMessage req, StreamObserver<Function> responseObserver) {
+    public void parseTPTP(StringMessage req, StreamObserver<Node> responseObserver) {
       try {
         responseObserver
             .onNext(tptp2ProtoParser.tptp2Proto(new StringReader(req.getStringMessage())));

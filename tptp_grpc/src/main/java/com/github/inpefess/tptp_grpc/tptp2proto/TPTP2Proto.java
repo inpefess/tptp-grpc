@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Paths;
 import java.util.Scanner;
-import com.github.inpefess.tptp_grpc.tptp_proto.Function;
-import com.github.inpefess.tptp_grpc.tptp_proto.Term;
-import com.github.inpefess.tptp_grpc.tptp_proto.Variable;
+import com.github.inpefess.tptp_grpc.tptp_proto.Node;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -54,74 +52,70 @@ public class TPTP2Proto {
     setupParser();
   }
 
-  public Function tptp2Proto(Reader reader) throws FileNotFoundException {
-    Function.Builder parsedTPTP = Function.newBuilder();
-    parsedTPTP.setName("$$$and");
+  public Node tptp2Proto(Reader reader) throws FileNotFoundException {
+    Node.Builder parsedTPTP = Node.newBuilder();
+    parsedTPTP.setValue("&");
     for (EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
       if (entry instanceof cnf_root) {
         cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
-        parsedTPTP.addArgument(Term.newBuilder().setFunction(transform_clause(clause)));
+        parsedTPTP.addChild(transform_clause(clause));
       }
       if (entry instanceof include) {
         File includedFile = Paths.get(tptpPath, ((include) entry).getPath()).toFile();
-        Function includedFunction = tptp2Proto(new FileReader(includedFile));
-        parsedTPTP.addAllArgument(includedFunction.getArgumentList());
+        Node includedNode = tptp2Proto(new FileReader(includedFile));
+        parsedTPTP.addAllChild(includedNode.getChildList());
       }
     }
     return parsedTPTP.build();
   }
 
-  private Term transform_term(cnf_expression term) {
-    Term.Builder termProto = Term.newBuilder();
+  private Node transform_term(cnf_expression term) {
+    Node.Builder termProto = Node.newBuilder();
     if (term instanceof cnf_var) {
-      Variable.Builder variableProto = Variable.newBuilder();
-      variableProto.setName(((cnf_var) term).getName());
-      termProto.setVariable(variableProto.build());
+      termProto.setValue(((cnf_var) term).getName());
     } else {
-      Function.Builder functionProto = Function.newBuilder();
       cnf_constant function = (cnf_constant) term;
-      functionProto.setName(function.getName());
+      termProto.setValue(function.getName());
       for (cnf_expression argument : function.getParam()) {
-        functionProto.addArgument(transform_term(argument));
+        termProto.addChild(transform_term(argument));
       }
-      termProto.setFunction(functionProto.build());
     }
     return termProto.build();
   }
 
-  private Function transform_predicate(cnf_equality predicate) {
-    Function.Builder predicateProto = Function.newBuilder();
+  private Node transform_predicate(cnf_equality predicate) {
+    Node.Builder predicateProto = Node.newBuilder();
     cnf_expression rightHandSide = predicate.getExpR();
     cnf_expression leftHandSide = predicate.getExpL();
     if (rightHandSide != null) {
-      predicateProto.setName(predicate.getEq());
-      predicateProto.addArgument(transform_term(leftHandSide));
-      predicateProto.addArgument(transform_term(rightHandSide));
+      predicateProto.setValue(predicate.getEq());
+      predicateProto.addChild(transform_term(leftHandSide));
+      predicateProto.addChild(transform_term(rightHandSide));
     } else {
       if (leftHandSide instanceof cnf_constant) {
-        predicateProto.setName(leftHandSide.getName());
+        predicateProto.setValue(leftHandSide.getName());
         for (cnf_expression argument : ((cnf_constant) leftHandSide).getParam()) {
-          predicateProto.addArgument(transform_term(argument));
+          predicateProto.addChild(transform_term(argument));
         }
       } else {
-        predicateProto.setName(leftHandSide.getCnf_exp());
+        predicateProto.setValue(leftHandSide.getCnf_exp());
       }
     }
     return predicateProto.build();
   }
 
-  private Function transform_clause(cnf_or clause) {
-    Function.Builder clauseProto = Function.newBuilder();
-    clauseProto.setName("$$$or");
+  private Node transform_clause(cnf_or clause) {
+    Node.Builder clauseProto = Node.newBuilder();
+    clauseProto.setValue("|");
     for (cnf_not literal : clause.getOr()) {
-      Function literalProto = transform_predicate(literal.getLiteral());
+      Node literalProto = transform_predicate(literal.getLiteral());
       if (literal.isNegated()) {
-        Function.Builder negatedLiteral = Function.newBuilder();
-        negatedLiteral.setName("$$$not");
-        negatedLiteral.addArgument(Term.newBuilder().setFunction(literalProto));
-        clauseProto.addArgument(Term.newBuilder().setFunction(negatedLiteral.build()));
+        Node.Builder negatedLiteral = Node.newBuilder();
+        negatedLiteral.setValue("~");
+        negatedLiteral.addChild(literalProto);
+        clauseProto.addChild(negatedLiteral.build());
       } else {
-        clauseProto.addArgument(Term.newBuilder().setFunction(literalProto));
+        clauseProto.addChild(literalProto);
       }
     }
     return clauseProto.build();
@@ -138,7 +132,7 @@ public class TPTP2Proto {
     int fileIndex = 0;
     while (problemList.hasNextLine()) {
       String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
-      Function parsedTPTP = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
+      Node parsedTPTP = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
       parsedTPTP.writeTo(new FileOutputStream(outputFilename));
     }
   }

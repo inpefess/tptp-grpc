@@ -20,7 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import com.github.inpefess.tptp_grpc.tptp_proto.Function;
+import com.github.inpefess.tptp_grpc.tptp_proto.Node;
 import org.junit.jupiter.api.Test;
 
 class TPTP2ProtoTest {
@@ -30,6 +30,6 @@ class TPTP2ProtoTest {
     InputStream testProblem =
         this.getClass().getResourceAsStream("/TPTP-mock/Problems/TST/TST001-1.p");
     assertEquals(tptp2Proto.tptp2Proto(new InputStreamReader(testProblem)),
-        Function.parseFrom(this.getClass().getResourceAsStream("/test.pb")));
+        Node.parseFrom(this.getClass().getResourceAsStream("/test.pb")));
   }
 }

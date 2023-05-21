@@ -19,7 +19,7 @@ package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp_proto.Function;
+import com.github.inpefess.tptp_grpc.tptp_proto.Node;
 import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
 import com.github.inpefess.tptp_grpc.tptp_proto.TPTPParserGrpc;
 import io.grpc.Channel;
@@ -45,9 +45,9 @@ public class TPTPgRPCClient {
   }
 
   /** Send a string to parse to server. */
-  public Function parseTPTP(String tptpString) {
+  public Node parseTPTP(String tptpString) {
     StringMessage request = StringMessage.newBuilder().setStringMessage(tptpString).build();
-    Function response;
+    Node response;
     response = blockingStub.parseTPTP(request);
     return response;
   }
@@ -65,8 +65,8 @@ public class TPTPgRPCClient {
       if ("--help".equals(args[0])) {
         System.err.println("Usage: [cnfString [target]]");
         System.err.println("");
-        System.err.println(
-            "  cnfString    The TPTP  string you wish to parse. Defaults to " + cnfString);
+        System.err
+            .println("  cnfString    The TPTP  string you wish to parse. Defaults to " + cnfString);
         System.err.println("  target  The server to connect to. Defaults to " + target);
         System.exit(1);
       }

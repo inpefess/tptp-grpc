@@ -19,25 +19,14 @@ option java_multiple_files = true;
 package com.github.inpefess.tptp_grpc.tptp_proto;
 
 service TPTPParser {
-  rpc parseTPTP (StringMessage) returns (Function) {}
+  rpc parseTPTP (StringMessage) returns (Node) {}
 }
 
 message StringMessage {
   string string_message = 1;
 }
 
-message Variable {
-  string name = 1;
-}
-
-message Function {
-  string name = 1;
-  repeated Term argument = 2;
-}
-
-message Term {
-  oneof term {
-    Variable variable = 1;
-    Function function = 2;
-  }
+message Node {
+  string value = 1;
+  repeated Node child = 2;
 }

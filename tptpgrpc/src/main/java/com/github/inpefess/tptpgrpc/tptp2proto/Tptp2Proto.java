@@ -24,7 +24,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 import com.github.inpefess.tptpgrpc.tptpproto.Node;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -55,11 +57,16 @@ public class Tptp2Proto {
 
   public Node tptp2Proto(Reader reader) throws FileNotFoundException {
     Node.Builder parsedTptp = Node.newBuilder();
+    Set<String> variableNames = new HashSet<>();
+    Set<String> functionAndPredicateNames = new HashSet<>();
     parsedTptp.setValue("&");
     for (EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
       if (entry instanceof cnf_root) {
         cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
-        parsedTptp.addChild(transform_clause(clause));
+        ParsingResult parsingResult = transform_clause(clause);
+        parsedTptp.addChild(parsingResult.node);
+        variableNames.addAll(parsingResult.variableNames);
+        functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
       }
       if (entry instanceof include) {
         File includedFile = Paths.get(tptpPath, ((include) entry).getPath()).toFile();
@@ -67,47 +74,80 @@ public class Tptp2Proto {
         parsedTptp.addAllChild(includedNode.getChildList());
       }
     }
-    return parsedTptp.build();
+    Node.Builder universalQuantifier = Node.newBuilder();
+    universalQuantifier.setValue("?");
+    for (String functionOrPredicateName : functionAndPredicateNames) {
+      Node.Builder functionOrPredicate = Node.newBuilder();
+      functionOrPredicate.setValue(functionOrPredicateName);
+      universalQuantifier.addChild(functionOrPredicate.build());
+    }
+    universalQuantifier.addChild(parsedTptp.build());
+    return universalQuantifier.build();
   }
 
-  private Node transform_term(cnf_expression term) {
+  private ParsingResult transform_term(cnf_expression term) {
     Node.Builder termProto = Node.newBuilder();
+    Set<String> variableNames = new HashSet<>();
+    Set<String> functionAndPredicateNames = new HashSet<>();
     if (term instanceof cnf_var) {
-      termProto.setValue(((cnf_var) term).getName());
+      String variableName = ((cnf_var) term).getName();
+      termProto.setValue(variableName);
+      variableNames.add(variableName);
     } else {
       cnf_constant function = (cnf_constant) term;
       termProto.setValue(function.getName());
+      functionAndPredicateNames.add(function.getName());
       for (cnf_expression argument : function.getParam()) {
-        termProto.addChild(transform_term(argument));
+        ParsingResult parsingResult = transform_term(argument);
+        termProto.addChild(parsingResult.node);
+        variableNames.addAll(parsingResult.variableNames);
+        functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
       }
     }
-    return termProto.build();
+    return new ParsingResult(termProto.build(), variableNames, functionAndPredicateNames);
   }
 
-  private Node transform_predicate(cnf_equality predicate) {
+  private ParsingResult transform_predicate(cnf_equality predicate) {
     Node.Builder predicateProto = Node.newBuilder();
+    Set<String> variableNames = new HashSet<>();
+    Set<String> functionAndPredicateNames = new HashSet<>();
     if (predicate.getExpR() != null) {
       predicateProto.setValue(predicate.getEq());
-      predicateProto.addChild(transform_term(predicate.getExpL()));
-      predicateProto.addChild(transform_term(predicate.getExpR()));
+      ParsingResult leftHandSide = transform_term(predicate.getExpL());
+      predicateProto.addChild(leftHandSide.node);
+      variableNames.addAll(leftHandSide.variableNames);
+      functionAndPredicateNames.addAll(leftHandSide.functionAndPredicateNames);
+      ParsingResult rightHandSide = transform_term(predicate.getExpR());
+      predicateProto.addChild(rightHandSide.node);
+      variableNames.addAll(rightHandSide.variableNames);
+      functionAndPredicateNames.addAll(rightHandSide.functionAndPredicateNames);
     } else {
       if (predicate.getExpL() instanceof cnf_constant) {
         predicateProto.setValue(predicate.getExpL().getName());
         for (cnf_expression argument : ((cnf_constant) predicate.getExpL()).getParam()) {
-          predicateProto.addChild(transform_term(argument));
+          ParsingResult parsingResult = transform_term(argument);
+          predicateProto.addChild(parsingResult.node);
+          variableNames.addAll(parsingResult.variableNames);
+          functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
         }
       } else {
         predicateProto.setValue(predicate.getExpL().getCnf_exp());
+        functionAndPredicateNames.add(predicate.getExpL().getCnf_exp());
       }
     }
-    return predicateProto.build();
+    return new ParsingResult(predicateProto.build(), variableNames, functionAndPredicateNames);
   }
 
-  private Node transform_clause(cnf_or clause) {
+  private ParsingResult transform_clause(cnf_or clause) {
     Node.Builder clauseProto = Node.newBuilder();
+    Set<String> variableNames = new HashSet<>();
+    Set<String> functionAndPredicateNames = new HashSet<>();
     clauseProto.setValue("|");
     for (cnf_not literal : clause.getOr()) {
-      Node literalProto = transform_predicate(literal.getLiteral());
+      ParsingResult parsingResult = transform_predicate(literal.getLiteral());
+      variableNames.addAll(parsingResult.variableNames);
+      functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
+      Node literalProto = parsingResult.node;
       if (literal.isNegated()) {
         Node.Builder negatedLiteral = Node.newBuilder();
         negatedLiteral.setValue("~");
@@ -117,7 +157,15 @@ public class Tptp2Proto {
         clauseProto.addChild(literalProto);
       }
     }
-    return clauseProto.build();
+    Node.Builder universalQuantifier = Node.newBuilder();
+    universalQuantifier.setValue("!");
+    for (String variableName : variableNames) {
+      Node.Builder variable = Node.newBuilder();
+      variable.setValue(variableName);
+      universalQuantifier.addChild(variable.build());
+    }
+    universalQuantifier.addChild(clauseProto);
+    return new ParsingResult(universalQuantifier.build(), new HashSet<>(), functionAndPredicateNames);
   }
 
   private void setupParser() {

@@ -24,7 +24,7 @@ import java.io.InputStreamReader;
 import com.github.inpefess.tptpgrpc.tptpproto.Node;
 import org.junit.jupiter.api.Test;
 
-class TPTP2ProtoTest {
+class Tptp2ProtoTest {
   @Test
   void tptpCnf2ProtoTest() throws FileNotFoundException, IOException {
     Tptp2Proto tptp2Proto = new Tptp2Proto(this.getClass().getResource("/TPTP-mock").getPath());

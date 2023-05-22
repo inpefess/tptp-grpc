@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
 */
+
 package com.github.inpefess.tptp_grpc.tptp2proto;
 
 import java.io.File;

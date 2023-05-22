@@ -64,7 +64,7 @@ public class Tptp2Proto {
       if (entry instanceof cnf_root) {
         cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
         ParsingResult parsingResult = transform_clause(clause);
-        parsedTptp.addChild(parsingResult.node);
+        parsedTptp.addChild(parsingResult.nodeBuilder.build());
         variableNames.addAll(parsingResult.variableNames);
         functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
       }
@@ -86,25 +86,18 @@ public class Tptp2Proto {
   }
 
   private ParsingResult transform_term(cnf_expression term) {
-    Node.Builder termProto = Node.newBuilder();
-    Set<String> variableNames = new HashSet<>();
-    Set<String> functionAndPredicateNames = new HashSet<>();
+    ParsingResult parsedTerm = ParsingResult.emptyParsingResult();
     if (term instanceof cnf_var) {
       String variableName = ((cnf_var) term).getName();
-      termProto.setValue(variableName);
-      variableNames.add(variableName);
+      parsedTerm.addVariable(variableName);
     } else {
       cnf_constant function = (cnf_constant) term;
-      termProto.setValue(function.getName());
-      functionAndPredicateNames.add(function.getName());
+      parsedTerm.addFunctionOrPredicate(function.getName());
       for (cnf_expression argument : function.getParam()) {
-        ParsingResult parsingResult = transform_term(argument);
-        termProto.addChild(parsingResult.node);
-        variableNames.addAll(parsingResult.variableNames);
-        functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
+        parsedTerm.addChild(transform_term(argument));
       }
     }
-    return new ParsingResult(termProto.build(), variableNames, functionAndPredicateNames);
+    return parsedTerm;
   }
 
   private ParsingResult transform_predicate(cnf_equality predicate) {
@@ -114,11 +107,11 @@ public class Tptp2Proto {
     if (predicate.getExpR() != null) {
       predicateProto.setValue(predicate.getEq());
       ParsingResult leftHandSide = transform_term(predicate.getExpL());
-      predicateProto.addChild(leftHandSide.node);
+      predicateProto.addChild(leftHandSide.nodeBuilder.build());
       variableNames.addAll(leftHandSide.variableNames);
       functionAndPredicateNames.addAll(leftHandSide.functionAndPredicateNames);
       ParsingResult rightHandSide = transform_term(predicate.getExpR());
-      predicateProto.addChild(rightHandSide.node);
+      predicateProto.addChild(rightHandSide.nodeBuilder.build());
       variableNames.addAll(rightHandSide.variableNames);
       functionAndPredicateNames.addAll(rightHandSide.functionAndPredicateNames);
     } else {
@@ -126,7 +119,7 @@ public class Tptp2Proto {
         predicateProto.setValue(predicate.getExpL().getName());
         for (cnf_expression argument : ((cnf_constant) predicate.getExpL()).getParam()) {
           ParsingResult parsingResult = transform_term(argument);
-          predicateProto.addChild(parsingResult.node);
+          predicateProto.addChild(parsingResult.nodeBuilder.build());
           variableNames.addAll(parsingResult.variableNames);
           functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
         }
@@ -135,7 +128,7 @@ public class Tptp2Proto {
         functionAndPredicateNames.add(predicate.getExpL().getCnf_exp());
       }
     }
-    return new ParsingResult(predicateProto.build(), variableNames, functionAndPredicateNames);
+    return new ParsingResult(predicateProto, variableNames, functionAndPredicateNames);
   }
 
   private ParsingResult transform_clause(cnf_or clause) {
@@ -147,7 +140,7 @@ public class Tptp2Proto {
       ParsingResult parsingResult = transform_predicate(literal.getLiteral());
       variableNames.addAll(parsingResult.variableNames);
       functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
-      Node literalProto = parsingResult.node;
+      Node literalProto = parsingResult.nodeBuilder.build();
       if (literal.isNegated()) {
         Node.Builder negatedLiteral = Node.newBuilder();
         negatedLiteral.setValue("~");
@@ -165,7 +158,7 @@ public class Tptp2Proto {
       universalQuantifier.addChild(variable.build());
     }
     universalQuantifier.addChild(clauseProto);
-    return new ParsingResult(universalQuantifier.build(), new HashSet<>(), functionAndPredicateNames);
+    return new ParsingResult(universalQuantifier, new HashSet<>(), functionAndPredicateNames);
   }
 
   private void setupParser() {

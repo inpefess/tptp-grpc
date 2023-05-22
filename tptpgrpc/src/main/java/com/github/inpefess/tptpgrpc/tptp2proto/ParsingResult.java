@@ -16,18 +16,39 @@
 
 package com.github.inpefess.tptpgrpc.tptp2proto;
 
+import java.util.HashSet;
 import java.util.Set;
 import com.github.inpefess.tptpgrpc.tptpproto.Node;
 
 public class ParsingResult {
-  public Node node;
+  public Node.Builder nodeBuilder;
   public Set<String> variableNames;
   public Set<String> functionAndPredicateNames;
 
-  public ParsingResult(Node node, Set<String> variableNames,
+  public ParsingResult(Node.Builder nodeBuilder, Set<String> variableNames,
       Set<String> functionAndPredicateNames) {
-    this.node = node;
+    this.nodeBuilder = nodeBuilder;
     this.variableNames = variableNames;
     this.functionAndPredicateNames = functionAndPredicateNames;
+  }
+
+  public static ParsingResult emptyParsingResult() {
+    return new ParsingResult(Node.newBuilder(), new HashSet<>(), new HashSet<>());
+  }
+
+  public void addChild(ParsingResult parsingResult) {
+    nodeBuilder.addChild(parsingResult.nodeBuilder.build());
+    variableNames.addAll(parsingResult.variableNames);
+    functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
+  }
+
+  public void addFunctionOrPredicate(String functionOrPredicateName) {
+    nodeBuilder.setValue(functionOrPredicateName);
+    functionAndPredicateNames.add(functionOrPredicateName);
+  }
+
+  public void addVariable(String variableName) {
+    nodeBuilder.setValue(variableName);
+    variableNames.add(variableName);
   }
 }

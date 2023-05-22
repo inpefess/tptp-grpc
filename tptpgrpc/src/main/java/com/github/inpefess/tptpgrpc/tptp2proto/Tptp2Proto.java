@@ -7,11 +7,12 @@
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+*/
 
 package com.github.inpefess.tptpgrpc.tptp2proto;
 
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import com.github.inpefess.tptpgrpc.tptpproto.Node;
@@ -55,33 +57,29 @@ public class Tptp2Proto {
   }
 
   public Node tptp2Proto(Reader reader) throws FileNotFoundException {
-    Node.Builder parsedTptp = Node.newBuilder();
-    Set<String> variableNames = new HashSet<>();
-    Set<String> functionAndPredicateNames = new HashSet<>();
-    parsedTptp.setValue("&");
+    ParsingResult parsedTptp = ParsingResult.emptyParsingResult();
+    parsedTptp.nodeBuilder.setValue("&");
     for (EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
       if (entry instanceof cnf_root) {
         cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
-        ParsingResult parsingResult = transform_clause(clause);
-        parsedTptp.addChild(parsingResult.nodeBuilder.build());
-        variableNames.addAll(parsingResult.variableNames);
-        functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
+        parsedTptp.addChild(transform_clause(clause));
       }
       if (entry instanceof include) {
-        File includedFile = Paths.get(tptpPath, ((include) entry).getPath()).toFile();
-        Node includedNode = tptp2Proto(new FileReader(includedFile));
-        parsedTptp.addAllChild(includedNode.getChildList());
+        parseInclude(parsedTptp, (include) entry);
       }
     }
-    Node.Builder universalQuantifier = Node.newBuilder();
-    universalQuantifier.setValue("?");
-    for (String functionOrPredicateName : functionAndPredicateNames) {
-      Node.Builder functionOrPredicate = Node.newBuilder();
-      functionOrPredicate.setValue(functionOrPredicateName);
-      universalQuantifier.addChild(functionOrPredicate.build());
+    return quantify(parsedTptp.nodeBuilder.build(), "?", parsedTptp.functionAndPredicateNames)
+        .build();
+  }
+
+  private void parseInclude(ParsingResult parsedTptp, include entry) throws FileNotFoundException {
+    File includedFile = Paths.get(tptpPath, entry.getPath()).toFile();
+    List<Node> includedEntries = tptp2Proto(new FileReader(includedFile)).getChildList();
+    int symbolCount = includedEntries.size() - 1;
+    for (int i = 0; i < symbolCount; i++) {
+      parsedTptp.functionAndPredicateNames.add(includedEntries.get(i).getValue());
     }
-    universalQuantifier.addChild(parsedTptp.build());
-    return universalQuantifier.build();
+    parsedTptp.nodeBuilder.addAllChild(includedEntries.get(symbolCount).getChildList());
   }
 
   private ParsingResult transform_term(cnf_expression term) {

@@ -15,7 +15,7 @@
  *  limitations under the License.
 */
 
-package com.github.inpefess.tptp_grpc.tptp2proto;
+package com.github.inpefess.tptpgrpc.tptp2proto;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,9 +23,9 @@ import java.io.StringReader;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import com.github.inpefess.tptp_grpc.tptp_proto.Node;
-import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
-import com.github.inpefess.tptp_grpc.tptp_proto.TptpParserGrpc;
+import com.github.inpefess.tptpgrpc.tptpproto.Node;
+import com.github.inpefess.tptpgrpc.tptpproto.StringMessage;
+import com.github.inpefess.tptpgrpc.tptpproto.TptpParserGrpc;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;

@@ -20,4 +20,4 @@ plugins {
 }
 
 rootProject.name = 'tptp-grpc'
-include('tptp_grpc')
+include('tptpgrpc')

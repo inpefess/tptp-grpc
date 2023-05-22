@@ -5,5 +5,5 @@
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 
 <suppressions>
-  <suppress files="com/github/inpefess/tptp_grpc/tptp_proto/.*\.java" checks=".*"/>
+  <suppress files="com/github/inpefess/tptpgrpc/tptpproto/.*\.java" checks=".*"/>
 </suppressions>

@@ -13,19 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
 */
-package com.github.inpefess.tptp_grpc.tptp2proto;
+
+package com.github.inpefess.tptpgrpc.tptp2proto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import com.github.inpefess.tptp_grpc.tptp_proto.Node;
+import com.github.inpefess.tptpgrpc.tptpproto.Node;
 import org.junit.jupiter.api.Test;
 
 class TPTP2ProtoTest {
   @Test
-  void tptpCNF2ProtoTest() throws FileNotFoundException, IOException {
+  void tptpCnf2ProtoTest() throws FileNotFoundException, IOException {
     Tptp2Proto tptp2Proto = new Tptp2Proto(this.getClass().getResource("/TPTP-mock").getPath());
     InputStream testProblem =
         this.getClass().getResourceAsStream("/TPTP-mock/Problems/TST/TST001-1.p");

@@ -14,7 +14,7 @@
  *  limitations under the License.
 */
 
-package com.github.inpefess.tptp_grpc.tptp2proto;
+package com.github.inpefess.tptpgrpc.tptp2proto;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Paths;
 import java.util.Scanner;
-import com.github.inpefess.tptp_grpc.tptp_proto.Node;
+import com.github.inpefess.tptpgrpc.tptpproto.Node;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;

@@ -86,20 +86,18 @@ public class Tptp2Proto {
 
   private Node transform_predicate(cnf_equality predicate) {
     Node.Builder predicateProto = Node.newBuilder();
-    cnf_expression rightHandSide = predicate.getExpR();
-    cnf_expression leftHandSide = predicate.getExpL();
-    if (rightHandSide != null) {
+    if (predicate.getExpR() != null) {
       predicateProto.setValue(predicate.getEq());
-      predicateProto.addChild(transform_term(leftHandSide));
-      predicateProto.addChild(transform_term(rightHandSide));
+      predicateProto.addChild(transform_term(predicate.getExpL()));
+      predicateProto.addChild(transform_term(predicate.getExpR()));
     } else {
-      if (leftHandSide instanceof cnf_constant) {
-        predicateProto.setValue(leftHandSide.getName());
-        for (cnf_expression argument : ((cnf_constant) leftHandSide).getParam()) {
+      if (predicate.getExpL() instanceof cnf_constant) {
+        predicateProto.setValue(predicate.getExpL().getName());
+        for (cnf_expression argument : ((cnf_constant) predicate.getExpL()).getParam()) {
           predicateProto.addChild(transform_term(argument));
         }
       } else {
-        predicateProto.setValue(leftHandSide.getCnf_exp());
+        predicateProto.setValue(predicate.getExpL().getCnf_exp());
       }
     }
     return predicateProto.build();

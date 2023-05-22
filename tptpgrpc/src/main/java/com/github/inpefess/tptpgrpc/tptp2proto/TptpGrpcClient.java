@@ -34,6 +34,8 @@ public class TptpGrpcClient {
   private static final Logger logger = Logger.getLogger(TptpGrpcClient.class.getName());
 
   private final TptpParserGrpc.TptpParserBlockingStub blockingStub;
+  private static String targetDefault = "localhost:50051";
+  private static String cnfStringDefault = "cnf(test, axiom, ~ p(f(X, g(Y, Z))) | X = Y | $false).";
 
   /** Construct client for accessing TPTPParserServer using the existing channel. */
   public TptpGrpcClient(Channel channel) {
@@ -52,29 +54,37 @@ public class TptpGrpcClient {
     return response;
   }
 
+  private static String getTarget(String[] args) {
+    if (args.length > 1) {
+      return args[1];
+    }
+    return targetDefault;
+  }
+
+  private static String getCnfString(String[] args) {
+    if (args.length > 0) {
+      if ("--help".equals(args[0])) {
+        System.err.println("Usage: [cnfString [target]]");
+        System.err.println("");
+        System.err.println(
+            "  cnfString    The TPTP  string you wish to parse. Defaults to " + cnfStringDefault);
+        System.err.println("  target  The server to connect to. Defaults to " + targetDefault);
+        System.exit(1);
+      }
+      return args[0];
+    }
+    return cnfStringDefault;
+  }
+
   /**
    * Parse . If provided, the first element of {@code args} is the TPTP  string to parse.
    * The second argument is the target server.
    */
   public static void main(String[] args) throws Exception {
-    String cnfString = "cnf(test, axiom, ~ p(f(X, g(Y, Z))) | X = Y | $false).";
-    // Access a service running on the local machine on port 50051
-    String target = "localhost:50051";
     // Allow passing in the user and target strings as command line arguments
-    if (args.length > 0) {
-      if ("--help".equals(args[0])) {
-        System.err.println("Usage: [cnfString [target]]");
-        System.err.println("");
-        System.err
-            .println("  cnfString    The TPTP  string you wish to parse. Defaults to " + cnfString);
-        System.err.println("  target  The server to connect to. Defaults to " + target);
-        System.exit(1);
-      }
-      cnfString = args[0];
-    }
-    if (args.length > 1) {
-      target = args[1];
-    }
+    String cnfString = getCnfString(args);
+    // Access a service running on the local machine on port 50051
+    String target = getTarget(args);
 
     // Create a communication channel to the server, known as a Channel. Channels are thread-safe
     // and reusable. It is common to create channels at the beginning of your application and reuse

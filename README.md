@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'tptp-grpc:tptp_grpc:0.0.2'
+    implementation 'tptp-grpc:tptpgrpc:0.0.6'
 
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     implementation 'com.google.protobuf:protobuf-java:3.23.0'
@@ -44,14 +44,14 @@ dependencies {
 # How to use in your code
 
 ```Java
-import com.github.inpefess.tptp_grpc.tptp2proto.TPTP2Proto;
-import com.github.inpefess.tptp_grpc.tptp_proto.Function;
+import com.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto;
+import com.github.inpefess.tptpgrpc.tptpproto.Node;
 
 // if you parse single statements, you can set an empty string
-TPTP2Proto tptp2Proto = new TPTP2Proto("path to TPTP root folder");
+Tptp2Proto tptp2Proto = new Tptp2Proto("path to TPTP root folder");
 // or read a file using FileReader
 StringReader cnfReader = new StringReader("cnf(test,axiom,$false).");
-Function parsedProto = tptp2Proto.tptp2Proto(cnfReader);
+Node parsedProto = tptp2Proto.tptp2Proto(cnfReader);
 ```
 
 # How to run the server
@@ -62,7 +62,7 @@ cd ./tptp-grpc
 ./gradlew build
 ```
 
-This will also run the [unit tests](https://junit.org/junit5/docs/current/user-guide/) and generate [Jacoco](https://www.jacoco.org/) coverage reports.
+This will also run the [unit tests](https://junit.org/junit5/docs/current/user-guide/), and generate [Jacoco](https://www.jacoco.org/) and [Checkstyle](https://checkstyle.org/) reports.
 
 Start the server:
 
@@ -73,7 +73,7 @@ Start the server:
 Then from a different terminal start an example Java client:
 
 ```sh
-./gradlew run -PmainClassToRun=com.github.inpefess.tptp_grpc.tptp2proto.TPTPgRPCClient
+./gradlew run -PmainClassToRun=com.github.inpefess.tptpgrpc.tptp2proto.TptpGrpcClient
 ```
 
 # To run a bulck parsing
@@ -87,5 +87,5 @@ mkdir output
 
 Then run the parsing script:
 ```sh
-./gradlew run -PmainClassToRun=com.github.inpefess.tptp_grpc.tptp2proto.TPTP2Proto --args="$TPTP_ROOT absolute_path_to_problem-list.txt absolute_path_to_output_folder"
+./gradlew run -PmainClassToRun=com.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto --args="$TPTP_ROOT absolute_path_to_problem-list.txt absolute_path_to_output_folder"
 ```

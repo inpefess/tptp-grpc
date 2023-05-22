@@ -7,12 +7,11 @@
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
-*/
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
 package com.github.inpefess.tptpgrpc.tptp2proto;
 
@@ -101,64 +100,54 @@ public class Tptp2Proto {
   }
 
   private ParsingResult transform_predicate(cnf_equality predicate) {
-    Node.Builder predicateProto = Node.newBuilder();
-    Set<String> variableNames = new HashSet<>();
-    Set<String> functionAndPredicateNames = new HashSet<>();
+    ParsingResult parsedPredicate = ParsingResult.emptyParsingResult();
     if (predicate.getExpR() != null) {
-      predicateProto.setValue(predicate.getEq());
-      ParsingResult leftHandSide = transform_term(predicate.getExpL());
-      predicateProto.addChild(leftHandSide.nodeBuilder.build());
-      variableNames.addAll(leftHandSide.variableNames);
-      functionAndPredicateNames.addAll(leftHandSide.functionAndPredicateNames);
-      ParsingResult rightHandSide = transform_term(predicate.getExpR());
-      predicateProto.addChild(rightHandSide.nodeBuilder.build());
-      variableNames.addAll(rightHandSide.variableNames);
-      functionAndPredicateNames.addAll(rightHandSide.functionAndPredicateNames);
+      parsedPredicate.nodeBuilder.setValue(predicate.getEq());
+      parsedPredicate.addChild(transform_term(predicate.getExpL()));
+      parsedPredicate.addChild(transform_term(predicate.getExpR()));
     } else {
       if (predicate.getExpL() instanceof cnf_constant) {
-        predicateProto.setValue(predicate.getExpL().getName());
+        parsedPredicate.addFunctionOrPredicate(predicate.getExpL().getName());
         for (cnf_expression argument : ((cnf_constant) predicate.getExpL()).getParam()) {
-          ParsingResult parsingResult = transform_term(argument);
-          predicateProto.addChild(parsingResult.nodeBuilder.build());
-          variableNames.addAll(parsingResult.variableNames);
-          functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
+          parsedPredicate.addChild(transform_term(argument));
         }
       } else {
-        predicateProto.setValue(predicate.getExpL().getCnf_exp());
-        functionAndPredicateNames.add(predicate.getExpL().getCnf_exp());
+        parsedPredicate.nodeBuilder.setValue(predicate.getExpL().getCnf_exp());
       }
     }
-    return new ParsingResult(predicateProto, variableNames, functionAndPredicateNames);
+    return parsedPredicate;
   }
 
   private ParsingResult transform_clause(cnf_or clause) {
-    Node.Builder clauseProto = Node.newBuilder();
-    Set<String> variableNames = new HashSet<>();
-    Set<String> functionAndPredicateNames = new HashSet<>();
-    clauseProto.setValue("|");
+    ParsingResult parsedClause = ParsingResult.emptyParsingResult();
+    parsedClause.nodeBuilder.setValue("|");
     for (cnf_not literal : clause.getOr()) {
-      ParsingResult parsingResult = transform_predicate(literal.getLiteral());
-      variableNames.addAll(parsingResult.variableNames);
-      functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
-      Node literalProto = parsingResult.nodeBuilder.build();
+      ParsingResult parsedLiteral = transform_predicate(literal.getLiteral());
       if (literal.isNegated()) {
         Node.Builder negatedLiteral = Node.newBuilder();
         negatedLiteral.setValue("~");
-        negatedLiteral.addChild(literalProto);
-        clauseProto.addChild(negatedLiteral.build());
+        negatedLiteral.addChild(parsedLiteral.nodeBuilder.build());
+        parsedClause.addChild(new ParsingResult(negatedLiteral, parsedLiteral.variableNames,
+            parsedLiteral.functionAndPredicateNames));
       } else {
-        clauseProto.addChild(literalProto);
+        parsedClause.addChild(parsedLiteral);
       }
     }
+    return new ParsingResult(
+        quantify(parsedClause.nodeBuilder.build(), "!", parsedClause.variableNames),
+        new HashSet<>(), parsedClause.functionAndPredicateNames);
+  }
+
+  private Node.Builder quantify(Node node, String quantor, Set<String> symbolNames) {
     Node.Builder universalQuantifier = Node.newBuilder();
-    universalQuantifier.setValue("!");
-    for (String variableName : variableNames) {
+    universalQuantifier.setValue(quantor);
+    for (String symbolName : symbolNames) {
       Node.Builder variable = Node.newBuilder();
-      variable.setValue(variableName);
+      variable.setValue(symbolName);
       universalQuantifier.addChild(variable.build());
     }
-    universalQuantifier.addChild(clauseProto);
-    return new ParsingResult(universalQuantifier, new HashSet<>(), functionAndPredicateNames);
+    universalQuantifier.addChild(node);
+    return universalQuantifier;
   }
 
   private void setupParser() {

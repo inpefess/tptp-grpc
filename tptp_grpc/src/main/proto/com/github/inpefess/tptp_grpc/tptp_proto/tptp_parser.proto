@@ -18,8 +18,8 @@ syntax = "proto3";
 option java_multiple_files = true;
 package com.github.inpefess.tptp_grpc.tptp_proto;
 
-service TPTPParser {
-  rpc parseTPTP (StringMessage) returns (Node) {}
+service TptpParser {
+  rpc parseTptp (StringMessage) returns (Node) {}
 }
 
 message StringMessage {

@@ -42,32 +42,32 @@ import com.theoremsandstuff.tptp.parser.include;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.parser.IParser;
 
-public class TPTP2Proto {
+public class Tptp2Proto {
   @Inject
   private IParser parser;
   Injector injector = Guice.createInjector(new ParserRuntimeModule());
   private String tptpPath;
 
-  public TPTP2Proto(String tptpPath) {
+  public Tptp2Proto(String tptpPath) {
     this.tptpPath = tptpPath;
     setupParser();
   }
 
   public Node tptp2Proto(Reader reader) throws FileNotFoundException {
-    Node.Builder parsedTPTP = Node.newBuilder();
-    parsedTPTP.setValue("&");
+    Node.Builder parsedTptp = Node.newBuilder();
+    parsedTptp.setValue("&");
     for (EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
       if (entry instanceof cnf_root) {
         cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
-        parsedTPTP.addChild(transform_clause(clause));
+        parsedTptp.addChild(transform_clause(clause));
       }
       if (entry instanceof include) {
         File includedFile = Paths.get(tptpPath, ((include) entry).getPath()).toFile();
         Node includedNode = tptp2Proto(new FileReader(includedFile));
-        parsedTPTP.addAllChild(includedNode.getChildList());
+        parsedTptp.addAllChild(includedNode.getChildList());
       }
     }
-    return parsedTPTP.build();
+    return parsedTptp.build();
   }
 
   private Node transform_term(cnf_expression term) {
@@ -128,13 +128,13 @@ public class TPTP2Proto {
   }
 
   public static void main(String[] args) throws IOException {
-    TPTP2Proto tptp2Proto = new TPTP2Proto(args[0]);
+    Tptp2Proto tptp2Proto = new Tptp2Proto(args[0]);
     Scanner problemList = new Scanner(new FileInputStream(args[1]));
     int fileIndex = 0;
     while (problemList.hasNextLine()) {
       String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
-      Node parsedTPTP = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
-      parsedTPTP.writeTo(new FileOutputStream(outputFilename));
+      Node parsedTptp = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
+      parsedTptp.writeTo(new FileOutputStream(outputFilename));
     }
   }
 }

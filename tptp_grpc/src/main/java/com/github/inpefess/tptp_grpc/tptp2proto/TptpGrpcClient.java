@@ -21,34 +21,34 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import com.github.inpefess.tptp_grpc.tptp_proto.Node;
 import com.github.inpefess.tptp_grpc.tptp_proto.StringMessage;
-import com.github.inpefess.tptp_grpc.tptp_proto.TPTPParserGrpc;
+import com.github.inpefess.tptp_grpc.tptp_proto.TptpParserGrpc;
 import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
 
 /**
- * A simple client that requests to parse a TPTP string from the {@link TPTPParserServer}.
+ * A simple client that requests to parse a TPTP string from the {@link TptpParserServer}.
  */
-public class TPTPgRPCClient {
-  private static final Logger logger = Logger.getLogger(TPTPgRPCClient.class.getName());
+public class TptpGrpcClient {
+  private static final Logger logger = Logger.getLogger(TptpGrpcClient.class.getName());
 
-  private final TPTPParserGrpc.TPTPParserBlockingStub blockingStub;
+  private final TptpParserGrpc.TptpParserBlockingStub blockingStub;
 
   /** Construct client for accessing TPTPParserServer using the existing channel. */
-  public TPTPgRPCClient(Channel channel) {
+  public TptpGrpcClient(Channel channel) {
     // 'channel' here is a Channel, not a ManagedChannel, so it is not this code's responsibility to
     // shut it down.
 
     // Passing Channels to code makes code easier to test and makes it easier to reuse Channels.
-    blockingStub = TPTPParserGrpc.newBlockingStub(channel);
+    blockingStub = TptpParserGrpc.newBlockingStub(channel);
   }
 
   /** Send a string to parse to server. */
-  public Node parseTPTP(String tptpString) {
+  public Node parseTptp(String tptpString) {
     StringMessage request = StringMessage.newBuilder().setStringMessage(tptpString).build();
     Node response;
-    response = blockingStub.parseTPTP(request);
+    response = blockingStub.parseTptp(request);
     return response;
   }
 
@@ -86,8 +86,8 @@ public class TPTPgRPCClient {
         Grpc.newChannelBuilder(target, InsecureChannelCredentials.create()).build();
     try {
       logger.info("Parsing string: " + cnfString);
-      TPTPgRPCClient client = new TPTPgRPCClient(channel);
-      logger.info("Parsing result: " + client.parseTPTP(cnfString).toString());
+      TptpGrpcClient client = new TptpGrpcClient(channel);
+      logger.info("Parsing result: " + client.parseTptp(cnfString).toString());
     } finally {
       // ManagedChannels use resources like threads and TCP connections. To prevent leaking these
       // resources the channel should be shut down when it will no longer be used. If it may be used

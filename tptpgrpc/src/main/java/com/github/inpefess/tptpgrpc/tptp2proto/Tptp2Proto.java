@@ -45,23 +45,23 @@ import com.theoremsandstuff.tptp.parser.include;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.parser.IParser;
 
-public class Tptp2Proto {
+public final class Tptp2Proto {
   @Inject
   private IParser parser;
   Injector injector = Guice.createInjector(new ParserRuntimeModule());
-  private String tptpPath;
+  private final String tptpPath;
 
-  public Tptp2Proto(String tptpPath) {
+  public Tptp2Proto(final String tptpPath) {
     this.tptpPath = tptpPath;
     setupParser();
   }
 
-  public Node tptp2Proto(Reader reader) throws FileNotFoundException {
-    ParsingResult parsedTptp = ParsingResult.emptyParsingResult();
+  public final Node tptp2Proto(final Reader reader) throws FileNotFoundException {
+    final ParsingResult parsedTptp = ParsingResult.emptyParsingResult();
     parsedTptp.nodeBuilder.setValue("&");
-    for (EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
+    for (final EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
       if (entry instanceof cnf_root) {
-        cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
+        final cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
         parsedTptp.addChild(transform_clause(clause));
       }
       if (entry instanceof include) {
@@ -72,33 +72,34 @@ public class Tptp2Proto {
         .build();
   }
 
-  private void parseInclude(ParsingResult parsedTptp, include entry) throws FileNotFoundException {
-    File includedFile = Paths.get(tptpPath, entry.getPath()).toFile();
-    List<Node> includedEntries = tptp2Proto(new FileReader(includedFile)).getChildList();
-    int symbolCount = includedEntries.size() - 1;
+  private final void parseInclude(final ParsingResult parsedTptp, final include entry)
+      throws FileNotFoundException {
+    final File includedFile = Paths.get(tptpPath, entry.getPath()).toFile();
+    final List<Node> includedEntries = tptp2Proto(new FileReader(includedFile)).getChildList();
+    final int symbolCount = includedEntries.size() - 1;
     for (int i = 0; i < symbolCount; i++) {
       parsedTptp.functionAndPredicateNames.add(includedEntries.get(i).getValue());
     }
     parsedTptp.nodeBuilder.addAllChild(includedEntries.get(symbolCount).getChildList());
   }
 
-  private ParsingResult transform_term(cnf_expression term) {
-    ParsingResult parsedTerm = ParsingResult.emptyParsingResult();
+  private final ParsingResult transform_term(final cnf_expression term) {
+    final ParsingResult parsedTerm = ParsingResult.emptyParsingResult();
     if (term instanceof cnf_var) {
-      String variableName = ((cnf_var) term).getName();
+      final String variableName = ((cnf_var) term).getName();
       parsedTerm.addVariable(variableName);
     } else {
-      cnf_constant function = (cnf_constant) term;
+      final cnf_constant function = (cnf_constant) term;
       parsedTerm.addFunctionOrPredicate(function.getName());
-      for (cnf_expression argument : function.getParam()) {
+      for (final cnf_expression argument : function.getParam()) {
         parsedTerm.addChild(transform_term(argument));
       }
     }
     return parsedTerm;
   }
 
-  private ParsingResult transform_predicate(cnf_equality predicate) {
-    ParsingResult parsedPredicate = ParsingResult.emptyParsingResult();
+  private final ParsingResult transform_predicate(final cnf_equality predicate) {
+    final ParsingResult parsedPredicate = ParsingResult.emptyParsingResult();
     if (predicate.getExpR() != null) {
       parsedPredicate.nodeBuilder.setValue(predicate.getEq());
       parsedPredicate.addChild(transform_term(predicate.getExpL()));
@@ -106,7 +107,7 @@ public class Tptp2Proto {
     } else {
       if (predicate.getExpL() instanceof cnf_constant) {
         parsedPredicate.addFunctionOrPredicate(predicate.getExpL().getName());
-        for (cnf_expression argument : ((cnf_constant) predicate.getExpL()).getParam()) {
+        for (final cnf_expression argument : ((cnf_constant) predicate.getExpL()).getParam()) {
           parsedPredicate.addChild(transform_term(argument));
         }
       } else {
@@ -116,13 +117,13 @@ public class Tptp2Proto {
     return parsedPredicate;
   }
 
-  private ParsingResult transform_clause(cnf_or clause) {
-    ParsingResult parsedClause = ParsingResult.emptyParsingResult();
+  private final ParsingResult transform_clause(final cnf_or clause) {
+    final ParsingResult parsedClause = ParsingResult.emptyParsingResult();
     parsedClause.nodeBuilder.setValue("|");
-    for (cnf_not literal : clause.getOr()) {
-      ParsingResult parsedLiteral = transform_predicate(literal.getLiteral());
+    for (final cnf_not literal : clause.getOr()) {
+      final ParsingResult parsedLiteral = transform_predicate(literal.getLiteral());
       if (literal.isNegated()) {
-        Node.Builder negatedLiteral = Node.newBuilder();
+        final Node.Builder negatedLiteral = Node.newBuilder();
         negatedLiteral.setValue("~");
         negatedLiteral.addChild(parsedLiteral.nodeBuilder.build());
         parsedClause.addChild(new ParsingResult(negatedLiteral, parsedLiteral.variableNames,
@@ -136,11 +137,12 @@ public class Tptp2Proto {
         new HashSet<>(), parsedClause.functionAndPredicateNames);
   }
 
-  private Node.Builder quantify(Node node, String quantor, Set<String> symbolNames) {
-    Node.Builder universalQuantifier = Node.newBuilder();
+  private final Node.Builder quantify(final Node node, final String quantor,
+      final Set<String> symbolNames) {
+    final Node.Builder universalQuantifier = Node.newBuilder();
     universalQuantifier.setValue(quantor);
-    for (String symbolName : symbolNames) {
-      Node.Builder variable = Node.newBuilder();
+    for (final String symbolName : symbolNames) {
+      final Node.Builder variable = Node.newBuilder();
       variable.setValue(symbolName);
       universalQuantifier.addChild(variable.build());
     }
@@ -148,18 +150,18 @@ public class Tptp2Proto {
     return universalQuantifier;
   }
 
-  private void setupParser() {
-    Injector injector = new ParserStandaloneSetup().createInjectorAndDoEMFRegistration();
+  private final void setupParser() {
+    final Injector injector = new ParserStandaloneSetup().createInjectorAndDoEMFRegistration();
     injector.injectMembers(this);
   }
 
-  public static void main(String[] args) throws IOException {
-    Tptp2Proto tptp2Proto = new Tptp2Proto(args[0]);
-    Scanner problemList = new Scanner(new FileInputStream(args[1]));
+  public static final void main(final String[] args) throws IOException {
+    final Tptp2Proto tptp2Proto = new Tptp2Proto(args[0]);
+    final Scanner problemList = new Scanner(new FileInputStream(args[1]));
     int fileIndex = 0;
     while (problemList.hasNextLine()) {
-      String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
-      Node parsedTptp = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
+      final String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
+      final Node parsedTptp = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
       parsedTptp.writeTo(new FileOutputStream(outputFilename));
     }
   }

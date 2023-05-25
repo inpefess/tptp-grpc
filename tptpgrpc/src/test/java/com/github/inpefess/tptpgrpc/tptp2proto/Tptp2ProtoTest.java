@@ -24,11 +24,12 @@ import java.io.InputStreamReader;
 import com.github.inpefess.tptpgrpc.tptpproto.Node;
 import org.junit.jupiter.api.Test;
 
-class Tptp2ProtoTest {
+public final class Tptp2ProtoTest {
   @Test
-  void tptpCnf2ProtoTest() throws FileNotFoundException, IOException {
-    Tptp2Proto tptp2Proto = new Tptp2Proto(this.getClass().getResource("/TPTP-mock").getPath());
-    InputStream testProblem =
+  public final void tptpCnf2ProtoTest() throws FileNotFoundException, IOException {
+    final Tptp2Proto tptp2Proto =
+        new Tptp2Proto(this.getClass().getResource("/TPTP-mock").getPath());
+    final InputStream testProblem =
         this.getClass().getResourceAsStream("/TPTP-mock/Problems/TST/TST001-1.p");
     assertEquals(tptp2Proto.tptp2Proto(new InputStreamReader(testProblem)),
         Node.parseFrom(this.getClass().getResourceAsStream("/test.pb")));

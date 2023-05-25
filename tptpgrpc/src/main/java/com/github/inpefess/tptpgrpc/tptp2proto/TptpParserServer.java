@@ -34,25 +34,25 @@ import io.grpc.stub.StreamObserver;
 /**
  * Server that manages startup/shutdown of a {@code Greeter} server.
  */
-public class TptpParserServer {
+public final class TptpParserServer {
   private static final Logger logger = Logger.getLogger(TptpParserServer.class.getName());
 
   private Server server;
 
-  private void start() throws IOException {
+  private final void start() throws IOException {
     /* The port on which the server should run */
-    int port = 50051;
+    final int port = 50051;
     server = Grpc.newServerBuilderForPort(port, InsecureServerCredentials.create())
         .addService(new TptpParserImpl()).build().start();
     logger.info("Server started, listening on " + port);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
-      public void run() {
+      public final void run() {
         // Use stderr here since the logger may have been reset by its JVM shutdown hook.
         System.err.println("*** shutting down gRPC server since JVM is shutting down");
         try {
           TptpParserServer.this.stop();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           e.printStackTrace(System.err);
         }
         System.err.println("*** server shut down");
@@ -60,7 +60,7 @@ public class TptpParserServer {
     });
   }
 
-  private void stop() throws InterruptedException {
+  private final void stop() throws InterruptedException {
     if (server != null) {
       server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
     }
@@ -69,7 +69,7 @@ public class TptpParserServer {
   /**
    * Await termination on the main thread since the grpc library uses daemon threads.
    */
-  private void blockUntilShutdown() throws InterruptedException {
+  private final void blockUntilShutdown() throws InterruptedException {
     if (server != null) {
       server.awaitTermination();
     }
@@ -78,27 +78,28 @@ public class TptpParserServer {
   /**
    * Main launches the server from the command line.
    */
-  public static void main(String[] args) throws IOException, InterruptedException {
+  public static final void main(final String[] args) throws IOException, InterruptedException {
     final TptpParserServer server = new TptpParserServer();
     server.start();
     server.blockUntilShutdown();
   }
 
-  static class TptpParserImpl extends TptpParserGrpc.TptpParserImplBase {
-    private Tptp2Proto tptp2ProtoParser;
+  static final class TptpParserImpl extends TptpParserGrpc.TptpParserImplBase {
+    private final Tptp2Proto tptp2ProtoParser;
 
     public TptpParserImpl() {
-      String tptpPath = Paths.get(System.getenv("HOME"), "data", "TPTP-v8.1.2").toString();
+      final String tptpPath = Paths.get(System.getenv("HOME"), "data", "TPTP-v8.1.2").toString();
       tptp2ProtoParser = new Tptp2Proto(tptpPath);
     }
 
     @Override
-    public void parseTptp(StringMessage req, StreamObserver<Node> responseObserver) {
+    public final void parseTptp(final StringMessage req,
+        final StreamObserver<Node> responseObserver) {
       try {
         responseObserver
             .onNext(tptp2ProtoParser.tptp2Proto(new StringReader(req.getStringMessage())));
         responseObserver.onCompleted();
-      } catch (FileNotFoundException e) {
+      } catch (final FileNotFoundException e) {
         logger.severe(e.getMessage());
       }
     }

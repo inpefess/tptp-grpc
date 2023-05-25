@@ -30,15 +30,16 @@ import io.grpc.ManagedChannel;
 /**
  * A simple client that requests to parse a TPTP string from the {@link TptpParserServer}.
  */
-public class TptpGrpcClient {
+public final class TptpGrpcClient {
   private static final Logger logger = Logger.getLogger(TptpGrpcClient.class.getName());
 
   private final TptpParserGrpc.TptpParserBlockingStub blockingStub;
-  private static String targetDefault = "localhost:50051";
-  private static String cnfStringDefault = "cnf(test, axiom, ~ p(f(X, g(Y, Z))) | X = Y | $false).";
+  private static final String targetDefault = "localhost:50051";
+  private static final String cnfStringDefault =
+      "cnf(test, axiom, ~ p(f(X, g(Y, Z))) | X = Y | $false).";
 
   /** Construct client for accessing TPTPParserServer using the existing channel. */
-  public TptpGrpcClient(Channel channel) {
+  public TptpGrpcClient(final Channel channel) {
     // 'channel' here is a Channel, not a ManagedChannel, so it is not this code's responsibility to
     // shut it down.
 
@@ -47,21 +48,20 @@ public class TptpGrpcClient {
   }
 
   /** Send a string to parse to server. */
-  public Node parseTptp(String tptpString) {
-    StringMessage request = StringMessage.newBuilder().setStringMessage(tptpString).build();
-    Node response;
-    response = blockingStub.parseTptp(request);
+  public final Node parseTptp(final String tptpString) {
+    final StringMessage request = StringMessage.newBuilder().setStringMessage(tptpString).build();
+    final Node response = blockingStub.parseTptp(request);
     return response;
   }
 
-  private static String getTarget(String[] args) {
+  private static final String getTarget(final String[] args) {
     if (args.length > 1) {
       return args[1];
     }
     return targetDefault;
   }
 
-  private static String getCnfString(String[] args) {
+  private static final String getCnfString(final String[] args) {
     if (args.length > 0) {
       if ("--help".equals(args[0])) {
         System.err.println("Usage: [cnfString [target]]");
@@ -80,11 +80,11 @@ public class TptpGrpcClient {
    * Parse . If provided, the first element of {@code args} is the TPTP  string to parse.
    * The second argument is the target server.
    */
-  public static void main(String[] args) throws Exception {
+  public static final void main(final String[] args) throws Exception {
     // Allow passing in the user and target strings as command line arguments
-    String cnfString = getCnfString(args);
+    final String cnfString = getCnfString(args);
     // Access a service running on the local machine on port 50051
-    String target = getTarget(args);
+    final String target = getTarget(args);
 
     // Create a communication channel to the server, known as a Channel. Channels are thread-safe
     // and reusable. It is common to create channels at the beginning of your application and reuse
@@ -92,11 +92,11 @@ public class TptpGrpcClient {
     //
     // For the example we use plaintext insecure credentials to avoid needing TLS certificates. To
     // use TLS, use TlsChannelCredentials instead.
-    ManagedChannel channel =
+    final ManagedChannel channel =
         Grpc.newChannelBuilder(target, InsecureChannelCredentials.create()).build();
     try {
       logger.info("Parsing string: " + cnfString);
-      TptpGrpcClient client = new TptpGrpcClient(channel);
+      final TptpGrpcClient client = new TptpGrpcClient(channel);
       logger.info("Parsing result: " + client.parseTptp(cnfString).toString());
     } finally {
       // ManagedChannels use resources like threads and TCP connections. To prevent leaking these

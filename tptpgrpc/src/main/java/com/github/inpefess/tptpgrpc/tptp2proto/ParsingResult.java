@@ -20,34 +20,34 @@ import java.util.HashSet;
 import java.util.Set;
 import com.github.inpefess.tptpgrpc.tptpproto.Node;
 
-public class ParsingResult {
-  public Node.Builder nodeBuilder;
-  public Set<String> variableNames;
-  public Set<String> functionAndPredicateNames;
+public final class ParsingResult {
+  public final Node.Builder nodeBuilder;
+  public final Set<String> variableNames;
+  public final Set<String> functionAndPredicateNames;
 
-  public ParsingResult(Node.Builder nodeBuilder, Set<String> variableNames,
-      Set<String> functionAndPredicateNames) {
+  public ParsingResult(final Node.Builder nodeBuilder, final Set<String> variableNames,
+      final Set<String> functionAndPredicateNames) {
     this.nodeBuilder = nodeBuilder;
     this.variableNames = variableNames;
     this.functionAndPredicateNames = functionAndPredicateNames;
   }
 
-  public static ParsingResult emptyParsingResult() {
+  public static final ParsingResult emptyParsingResult() {
     return new ParsingResult(Node.newBuilder(), new HashSet<>(), new HashSet<>());
   }
 
-  public void addChild(ParsingResult parsingResult) {
+  public final void addChild(final ParsingResult parsingResult) {
     nodeBuilder.addChild(parsingResult.nodeBuilder.build());
     variableNames.addAll(parsingResult.variableNames);
     functionAndPredicateNames.addAll(parsingResult.functionAndPredicateNames);
   }
 
-  public void addFunctionOrPredicate(String functionOrPredicateName) {
+  public final void addFunctionOrPredicate(final String functionOrPredicateName) {
     nodeBuilder.setValue(functionOrPredicateName);
     functionAndPredicateNames.add(functionOrPredicateName);
   }
 
-  public void addVariable(String variableName) {
+  public final void addVariable(final String variableName) {
     nodeBuilder.setValue(variableName);
     variableNames.add(variableName);
   }

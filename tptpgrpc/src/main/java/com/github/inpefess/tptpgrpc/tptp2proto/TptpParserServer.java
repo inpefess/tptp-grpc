@@ -17,7 +17,6 @@
 
 package com.github.inpefess.tptpgrpc.tptp2proto;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Paths;
@@ -99,7 +98,7 @@ public final class TptpParserServer {
         responseObserver
             .onNext(tptp2ProtoParser.tptp2Proto(new StringReader(req.getStringMessage())));
         responseObserver.onCompleted();
-      } catch (final FileNotFoundException e) {
+      } catch (final IOException e) {
         logger.severe(e.getMessage());
       }
     }

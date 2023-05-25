@@ -56,7 +56,7 @@ public final class Tptp2Proto {
     setupParser();
   }
 
-  public final Node tptp2Proto(final Reader reader) throws FileNotFoundException {
+  public final Node tptp2Proto(final Reader reader) throws IOException {
     final ParsingResult parsedTptp = ParsingResult.emptyParsingResult();
     parsedTptp.nodeBuilder.setValue("&");
     for (final EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
@@ -73,14 +73,16 @@ public final class Tptp2Proto {
   }
 
   private final void parseInclude(final ParsingResult parsedTptp, final include entry)
-      throws FileNotFoundException {
+      throws IOException {
     final File includedFile = Paths.get(tptpPath, entry.getPath()).toFile();
-    final List<Node> includedEntries = tptp2Proto(new FileReader(includedFile)).getChildList();
-    final int symbolCount = includedEntries.size() - 1;
-    for (int i = 0; i < symbolCount; i++) {
-      parsedTptp.functionAndPredicateNames.add(includedEntries.get(i).getValue());
+    try (final FileReader includedFileReader = new FileReader(includedFile)) {
+      final List<Node> includedEntries = tptp2Proto(includedFileReader).getChildList();
+      final int symbolCount = includedEntries.size() - 1;
+      for (int i = 0; i < symbolCount; i++) {
+        parsedTptp.functionAndPredicateNames.add(includedEntries.get(i).getValue());
+      }
+      parsedTptp.nodeBuilder.addAllChild(includedEntries.get(symbolCount).getChildList());
     }
-    parsedTptp.nodeBuilder.addAllChild(includedEntries.get(symbolCount).getChildList());
   }
 
   private final ParsingResult transform_term(final cnf_expression term) {
@@ -157,12 +159,18 @@ public final class Tptp2Proto {
 
   public static final void main(final String[] args) throws IOException {
     final Tptp2Proto tptp2Proto = new Tptp2Proto(args[0]);
-    final Scanner problemList = new Scanner(new FileInputStream(args[1]));
-    int fileIndex = 0;
-    while (problemList.hasNextLine()) {
-      final String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
-      final Node parsedTptp = tptp2Proto.tptp2Proto(new FileReader(problemList.nextLine()));
-      parsedTptp.writeTo(new FileOutputStream(outputFilename));
+    try (final FileInputStream fileInputStream = new FileInputStream(args[1]);
+        final Scanner problemList = new Scanner(fileInputStream)) {
+      int fileIndex = 0;
+      while (problemList.hasNextLine()) {
+        try (FileReader problemReader = new FileReader(problemList.nextLine())) {
+          final Node parsedTptp = tptp2Proto.tptp2Proto(problemReader);
+          final String outputFilename = Paths.get(args[2], fileIndex++ + ".pb").toString();
+          try (FileOutputStream outputProtobufFile = new FileOutputStream(outputFilename)) {
+            parsedTptp.writeTo(outputProtobufFile);
+          }
+        }
+      }
     }
   }
 }

@@ -81,11 +81,17 @@ Then from a different terminal start an example Java client:
 Prepare the list of problems and the output folder, e.g.:
 
 ```sh
-find $TPTP_ROOT/Problems/*/*-*.p | grep -vE "(SYN|HWV|CSR|KRS|PLA|SWV|SYO)" > problem-list.txt
+find $TPTP_ROOT/Problems/*/*-*.p | grep -vE "(SYN|HWV|CSR|KRS|PLA|SWV|SYO)" | xargs -I {} grep -LE "^%\ Status\ +: (Unknown|Open)" {} > problem-list.txt
 mkdir output
 ```
 
 Then run the parsing script:
 ```sh
 ./gradlew run -PmainClassToRun=com.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto --args="$TPTP_ROOT absolute_path_to_problem-list.txt absolute_path_to_output_folder"
+```
+
+To prepare labels for graph classification task:
+
+```sh
+cat problem-list.txt | xargs -I {} grep -E "^%\ Status\ +:\ " {} | cut -d ":" -f 2 | sed "s/ Satisfiable/0/" | sed "s/ Unsatisfiable/1/" > labels.txt
 ```

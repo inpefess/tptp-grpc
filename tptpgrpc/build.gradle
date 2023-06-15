@@ -77,19 +77,19 @@ jacocoTestReport {
 }
 
 protobuf {
-  protoc {
-    artifact = "com.google.protobuf:protoc:3.21.7"
-  }
-  plugins {
-    grpc {
-      artifact = 'io.grpc:protoc-gen-grpc-java:1.54.1'
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.21.7"
     }
-  }
-  generateProtoTasks {
-    all()*.plugins {
-      grpc {}
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.54.1'
+        }
     }
-  }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
 }
 
 publishing {
@@ -112,4 +112,8 @@ publishing {
 
 checkstyle {
     toolVersion = '10.11.0'
+}
+
+javadoc {
+    source = sourceSets.main.allJava
 }

@@ -4,4 +4,6 @@ orbs:
 workflows:
   checkout-build-test:
     jobs:
-      - gradle/test
+      - gradle/test:
+          reports_path: tptpgrpc/build/reports/
+          test_results_path: tptpgrpc/build/test-results/

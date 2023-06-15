@@ -44,9 +44,8 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.parser.IParser;
 import io.github.inpefess.tptpgrpc.tptpproto.Node;
 
-
 /**
- * Parses TPTP problems into protobuf objects.
+ * Parse TPTP problems into protobuf objects.
  */
 public final class Tptp2Proto {
   @Inject
@@ -172,6 +171,19 @@ public final class Tptp2Proto {
     injector.injectMembers(this);
   }
 
+  /**
+   * Read TPTP problems from a given list, parse them, and save protobuf binaries to a given folder.
+   *
+   * <p>Resulting files in the output folder are called by order numbers of problems in the list,
+   * e.g. the first one becomes {@literal 0.pb}, the second one {@literal 1.pb}, and so forth.
+   *
+   * @param args three arguments: <ol>
+   *     <li> TPTP root folder </li>
+   *     <li> absolute path to the problem list file </li>
+   *     <li> absolute path to the output folder (should exist and be empty) </li>
+   *     </ol>
+   * @throws IOException if there are any error when reading TPTP problems
+   */
   public static final void main(final String[] args) throws IOException {
     final Tptp2Proto tptp2Proto = new Tptp2Proto(args[0]);
     try (final FileInputStream fileInputStream = new FileInputStream(args[1]);

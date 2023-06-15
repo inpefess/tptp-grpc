@@ -20,6 +20,7 @@ plugins {
     id 'jacoco'
     id 'maven-publish'
     id 'checkstyle'
+    id 'signing'
 }
 
 repositories {
@@ -59,7 +60,7 @@ application {
     mainClass = (
         project.hasProperty("mainClassToRun") ?
         project.findProperty("mainClassToRun").toString() :
-        'com.github.inpefess.tptpgrpc.tptp2proto.TptpParserServer'
+        'io.github.inpefess.tptpgrpc.tptp2proto.TptpParserServer'
    )
 }
 
@@ -92,28 +93,68 @@ protobuf {
     }
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/inpefess/tptp-grpc")
-            credentials {
-                username = project.findProperty("gpr.user")
-                password = project.findProperty("gpr.key")
-            }
-        }
-    }
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
-        }
-    }
-}
-
 checkstyle {
     toolVersion = '10.11.0'
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'io.github.inpefess'
+            artifactId = 'tptpgrpc'
+            version = '0.0.7'
+            from components.java
+            pom {
+                name = 'TPTP gRPC Server'
+                description = 'Server parsing TPTP problems to protobuf objects'
+                url = 'https://github.com/inpefess/tptp-grpc'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'inpefess'
+                        name = 'Boris Shminke'
+                        email = 'boris@shminke.ml'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/inpefess/tptp-grpc.git'
+                    developerConnection = 'scm:git:https://github.com/inpefess/tptp-grpc.git'
+                    url = 'https://github.com/inpefess/tptp-grpc'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = project.findProperty("ossrhUsername")
+                password = project.findProperty("ossrhPassword")
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
 javadoc {
     source = sourceSets.main.allJava
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }

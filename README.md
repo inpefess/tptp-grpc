@@ -64,7 +64,7 @@ Then from a different terminal start an example Java client:
 ./gradlew run -PmainClassToRun=io.github.inpefess.tptpgrpc.tptp2proto.TptpGrpcClient
 ```
 
-# To run a bulck parsing
+# To run a bulk parsing
 
 Prepare the list of problems and the output folder, e.g.:
 

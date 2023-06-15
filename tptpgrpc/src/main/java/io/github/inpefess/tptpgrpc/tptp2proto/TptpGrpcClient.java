@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package com.github.inpefess.tptpgrpc.tptp2proto;
+package io.github.inpefess.tptpgrpc.tptp2proto;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import com.github.inpefess.tptpgrpc.tptpproto.Node;
-import com.github.inpefess.tptpgrpc.tptpproto.StringMessage;
-import com.github.inpefess.tptpgrpc.tptpproto.TptpParserGrpc;
+import io.github.inpefess.tptpgrpc.tptpproto.Node;
+import io.github.inpefess.tptpgrpc.tptpproto.StringMessage;
+import io.github.inpefess.tptpgrpc.tptpproto.TptpParserGrpc;
 import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;

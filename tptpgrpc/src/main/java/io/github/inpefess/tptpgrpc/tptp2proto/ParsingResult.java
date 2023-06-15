@@ -14,11 +14,11 @@
  *  limitations under the License.
 */
 
-package com.github.inpefess.tptpgrpc.tptp2proto;
+package io.github.inpefess.tptpgrpc.tptp2proto;
 
 import java.util.HashSet;
 import java.util.Set;
-import com.github.inpefess.tptpgrpc.tptpproto.Node;
+import io.github.inpefess.tptpgrpc.tptpproto.Node;
 
 public final class ParsingResult {
   public final Node.Builder nodeBuilder;

@@ -44,8 +44,8 @@ dependencies {
 # How to use in your code
 
 ```Java
-import com.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto;
-import com.github.inpefess.tptpgrpc.tptpproto.Node;
+import io.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto;
+import io.github.inpefess.tptpgrpc.tptpproto.Node;
 
 // if you parse single statements, you can set an empty string
 Tptp2Proto tptp2Proto = new Tptp2Proto("path to TPTP root folder");
@@ -73,7 +73,7 @@ Start the server:
 Then from a different terminal start an example Java client:
 
 ```sh
-./gradlew run -PmainClassToRun=com.github.inpefess.tptpgrpc.tptp2proto.TptpGrpcClient
+./gradlew run -PmainClassToRun=io.github.inpefess.tptpgrpc.tptp2proto.TptpGrpcClient
 ```
 
 # To run a bulck parsing
@@ -87,7 +87,7 @@ mkdir output
 
 Then run the parsing script:
 ```sh
-./gradlew run -PmainClassToRun=com.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto --args="$TPTP_ROOT absolute_path_to_problem-list.txt absolute_path_to_output_folder"
+./gradlew run -PmainClassToRun=io.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto --args="$TPTP_ROOT absolute_path_to_problem-list.txt absolute_path_to_output_folder"
 ```
 
 To prepare labels for graph classification task:

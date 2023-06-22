@@ -15,12 +15,12 @@
 */
 
 plugins {
-    id 'application'
-    id 'com.google.protobuf' version '0.9.1'
-    id 'jacoco'
-    id 'maven-publish'
-    id 'checkstyle'
-    id 'signing'
+    id "application"
+    id "com.google.protobuf" version "0.9.1"
+    id "jacoco"
+    id "maven-publish"
+    id "checkstyle"
+    id "signing"
 }
 
 repositories {
@@ -33,19 +33,19 @@ repositories {
 
 dependencies {
     // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+    testImplementation "org.junit.jupiter:junit-jupiter:5.9.1"
 
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:31.1-jre'
+    implementation "com.google.guava:guava:31.1-jre"
 
     // TPTP parser https://github.com/marklemay/tptpParser
-    implementation 'tptp:parser:0.0.6-SNAPSHOT'
+    implementation "tptp:parser:0.0.6-SNAPSHOT"
 
     // gRPC
-    runtimeOnly 'io.grpc:grpc-netty-shaded:1.54.1'
-    implementation 'io.grpc:grpc-protobuf:1.54.1'
-    implementation 'io.grpc:grpc-stub:1.54.1'
-    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // necessary for Java 9+
+    runtimeOnly "io.grpc:grpc-netty-shaded:1.54.1"
+    implementation "io.grpc:grpc-protobuf:1.54.1"
+    implementation "io.grpc:grpc-stub:1.54.1"
+    compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -60,11 +60,11 @@ application {
     mainClass = (
         project.hasProperty("mainClassToRun") ?
         project.findProperty("mainClassToRun").toString() :
-        'io.github.inpefess.tptpgrpc.tptp2proto.TptpParserServer'
+        "io.github.inpefess.tptpgrpc.tptp2proto.TptpParserServer"
    )
 }
 
-tasks.named('test') {
+tasks.named("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
@@ -83,7 +83,7 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.54.1'
+            artifact = "io.grpc:protoc-gen-grpc-java:1.54.1"
         }
     }
     generateProtoTasks {
@@ -94,7 +94,7 @@ protobuf {
 }
 
 checkstyle {
-    toolVersion = '10.11.0'
+    toolVersion = "10.11.0"
 }
 
 java {
@@ -105,40 +105,40 @@ java {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'io.github.inpefess'
-            artifactId = 'tptpgrpc'
-            version = '0.0.7'
+            groupId = "io.github.inpefess"
+            artifactId = "tptpgrpc"
+            version = "0.0.7"
             from components.java
             pom {
-                name = 'TPTP gRPC Server'
-                description = 'Server parsing TPTP problems to protobuf objects'
-                url = 'https://github.com/inpefess/tptp-grpc'
+                name = "TPTP gRPC Server"
+                description = "Server parsing TPTP problems to protobuf objects"
+                url = "https://github.com/inpefess/tptp-grpc"
                 licenses {
                     license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 developers {
                     developer {
-                        id = 'inpefess'
-                        name = 'Boris Shminke'
-                        email = 'boris@shminke.ml'
+                        id = "inpefess"
+                        name = "Boris Shminke"
+                        email = "boris@shminke.ml"
                     }
                 }
                 scm {
-                    connection = 'scm:git:https://github.com/inpefess/tptp-grpc.git'
-                    developerConnection = 'scm:git:https://github.com/inpefess/tptp-grpc.git'
-                    url = 'https://github.com/inpefess/tptp-grpc'
+                    connection = "scm:git:https://github.com/inpefess/tptp-grpc.git"
+                    developerConnection = "scm:git:https://github.com/inpefess/tptp-grpc.git"
+                    url = "https://github.com/inpefess/tptp-grpc"
                 }
             }
         }
     }
     repositories {
         maven {
-            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
             credentials {
                 username = project.findProperty("ossrhUsername")
                 password = project.findProperty("ossrhPassword")
@@ -155,6 +155,6 @@ signing {
 javadoc {
     source = sourceSets.main.allJava
     if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
+        options.addBooleanOption("html5", true)
     }
 }

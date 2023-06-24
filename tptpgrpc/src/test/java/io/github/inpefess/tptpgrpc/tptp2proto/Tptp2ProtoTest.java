@@ -14,14 +14,14 @@
  *  limitations under the License.
 */
 
-package com.github.inpefess.tptpgrpc.tptp2proto;
+package io.github.inpefess.tptpgrpc.tptp2proto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import com.github.inpefess.tptpgrpc.tptpproto.Node;
+import io.github.inpefess.tptpgrpc.tptpproto.Node;
 import org.junit.jupiter.api.Test;
 
 public final class Tptp2ProtoTest {

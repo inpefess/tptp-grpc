@@ -14,17 +14,30 @@
  *  limitations under the License.
 */
 
-package com.github.inpefess.tptpgrpc.tptp2proto;
+package io.github.inpefess.tptpgrpc.tptp2proto;
 
 import java.util.HashSet;
 import java.util.Set;
-import com.github.inpefess.tptpgrpc.tptpproto.Node;
+import io.github.inpefess.tptpgrpc.tptpproto.Node;
 
+/**
+ * Results of parsing a TPTP problem.
+ *
+ * <p>Apart from a protobuf object ({@link io.github.inpefess.tptpgrpc.tptpproto.Node}), we store
+ * collections of variables, functions, and predicates encountered while parsing.
+ */
 public final class ParsingResult {
   public final Node.Builder nodeBuilder;
   public final Set<String> variableNames;
   public final Set<String> functionAndPredicateNames;
 
+  /**
+   * Constructor.
+   *
+   * @param nodeBuilder partly built protobuf object
+   * @param variableNames variable names from the partly built protobuf object
+   * @param functionAndPredicateNames functions and predicates from the partly built protobuf
+   */
   public ParsingResult(final Node.Builder nodeBuilder, final Set<String> variableNames,
       final Set<String> functionAndPredicateNames) {
     this.nodeBuilder = nodeBuilder;
@@ -36,6 +49,11 @@ public final class ParsingResult {
     return new ParsingResult(Node.newBuilder(), new HashSet<>(), new HashSet<>());
   }
 
+  /**
+   * Add a child node to a partially finished parsing tree.
+   *
+   * @param parsingResult a partially finished parsing subtree
+   */
   public final void addChild(final ParsingResult parsingResult) {
     nodeBuilder.addChild(parsingResult.nodeBuilder.build());
     variableNames.addAll(parsingResult.variableNames);

@@ -14,11 +14,10 @@
  *  limitations under the License.
 */
 
-package com.github.inpefess.tptpgrpc.tptp2proto;
+package io.github.inpefess.tptpgrpc.tptp2proto;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import com.github.inpefess.tptpgrpc.tptpproto.Node;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -44,18 +42,34 @@ import com.theoremsandstuff.tptp.parser.cnf_var;
 import com.theoremsandstuff.tptp.parser.include;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.parser.IParser;
+import io.github.inpefess.tptpgrpc.tptpproto.Node;
 
+/**
+ * Parse TPTP problems into protobuf objects.
+ */
 public final class Tptp2Proto {
   @Inject
   private IParser parser;
   Injector injector = Guice.createInjector(new ParserRuntimeModule());
   private final String tptpPath;
 
+  /**
+   * Constructor.
+   *
+   * @param tptpPath the absolute path to the TPTP root folder
+   */
   public Tptp2Proto(final String tptpPath) {
     this.tptpPath = tptpPath;
     setupParser();
   }
 
+  /**
+   * Parse a TPTP problem into protobuf.
+   *
+   * @param reader a reader of a TPTP problem
+   * @return a protobuf object representing the parsed TPTP problem
+   * @throws IOException if encounters errors when reading the problem
+   */
   public final Node tptp2Proto(final Reader reader) throws IOException {
     final ParsingResult parsedTptp = ParsingResult.emptyParsingResult();
     parsedTptp.nodeBuilder.setValue("&");
@@ -157,6 +171,19 @@ public final class Tptp2Proto {
     injector.injectMembers(this);
   }
 
+  /**
+   * Read TPTP problems from a given list, parse them, and save protobuf binaries to a given folder.
+   *
+   * <p>Resulting files in the output folder are called by order numbers of problems in the list,
+   * e.g. the first one becomes {@literal 0.pb}, the second one {@literal 1.pb}, and so forth.
+   *
+   * @param args three arguments: <ol>
+   *     <li> TPTP root folder </li>
+   *     <li> absolute path to the problem list file </li>
+   *     <li> absolute path to the output folder (should exist and be empty) </li>
+   *     </ol>
+   * @throws IOException if there are any error when reading TPTP problems
+   */
   public static final void main(final String[] args) throws IOException {
     final Tptp2Proto tptp2Proto = new Tptp2Proto(args[0]);
     try (final FileInputStream fileInputStream = new FileInputStream(args[1]);

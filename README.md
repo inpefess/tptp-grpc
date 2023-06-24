@@ -11,11 +11,7 @@ This project uses an exising [TPTP parser](https://github.com/marklemay/tptpPars
 
 # How to install
 
-This project uses Java 11. To get the Maven package, first generate GitHub [personal access token](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#authenticating-to-github-packages).
-
-For [Gradle](https://gradle.org/), add you GitHub user name as `gpr.user` and you personal access token as `grp.key` to `gradle.properties`. Maven, sbt or others should provide similar options for package registry authentication.
-
-Then add the following to `gradle.build`:
+This project uses Java 11. For [Gradle](https://gradle.org/), add the following to `gradle.build`:
 
 ```Groovy
 repositories {
@@ -23,18 +19,10 @@ repositories {
     maven {
         url "https://raw.github.com/marklemay/tptpParser/mvn-repo/"
     }
-    // TPTP gRPC https://github.com/inpefess/tptp-grpc
-    maven {
-        url = uri("https://maven.pkg.github.com/inpefess/tptp-grpc")
-        credentials {
-            username = project.findProperty("gpr.user")
-            password = project.findProperty("gpr.key")
-        }
-    }
 }
 
 dependencies {
-    implementation 'tptp-grpc:tptpgrpc:0.0.6'
+    implementation 'io.github.inpefess:tptpgrpc:0.0.7'
 
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     implementation 'com.google.protobuf:protobuf-java:3.23.0'
@@ -44,8 +32,8 @@ dependencies {
 # How to use in your code
 
 ```Java
-import com.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto;
-import com.github.inpefess.tptpgrpc.tptpproto.Node;
+import io.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto;
+import io.github.inpefess.tptpgrpc.tptpproto.Node;
 
 // if you parse single statements, you can set an empty string
 Tptp2Proto tptp2Proto = new Tptp2Proto("path to TPTP root folder");
@@ -73,19 +61,25 @@ Start the server:
 Then from a different terminal start an example Java client:
 
 ```sh
-./gradlew run -PmainClassToRun=com.github.inpefess.tptpgrpc.tptp2proto.TptpGrpcClient
+./gradlew run -PmainClassToRun=io.github.inpefess.tptpgrpc.tptp2proto.TptpGrpcClient
 ```
 
-# To run a bulck parsing
+# To run a bulk parsing
 
 Prepare the list of problems and the output folder, e.g.:
 
 ```sh
-find $TPTP_ROOT/Problems/*/*-*.p | grep -vE "(SYN|HWV|CSR|KRS|PLA|SWV|SYO)" > problem-list.txt
+find $TPTP_ROOT/Problems/*/*-*.p | grep -vE "(SYN|HWV|CSR|KRS|PLA|SWV|SYO)" | xargs -I {} grep -LE "^%\ Status\ +: (Unknown|Open)" {} > problem-list.txt
 mkdir output
 ```
 
 Then run the parsing script:
 ```sh
-./gradlew run -PmainClassToRun=com.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto --args="$TPTP_ROOT absolute_path_to_problem-list.txt absolute_path_to_output_folder"
+./gradlew run -PmainClassToRun=io.github.inpefess.tptpgrpc.tptp2proto.Tptp2Proto --args="$TPTP_ROOT absolute_path_to_problem-list.txt absolute_path_to_output_folder"
+```
+
+To prepare labels for graph classification task:
+
+```sh
+cat problem-list.txt | xargs -I {} grep -E "^%\ Status\ +:\ " {} | cut -d ":" -f 2 | sed "s/ Satisfiable/0/" | sed "s/ Unsatisfiable/1/" > labels.txt
 ```

@@ -38,22 +38,35 @@ public final class TptpGrpcClient {
   private static final String cnfStringDefault =
       "cnf(test, axiom, ~ p(f(X, g(Y, Z))) | X = Y | $false).";
 
-  /** Construct client for accessing TPTPParserServer using the existing channel. */
+  /**
+   * Construct client for accessing TPTPParserServer using the existing channel.
+   *
+   * @param channel a Channel, not a ManagedChannel, so it is not this code's responsibility to shut
+            it down.
+   */
   public TptpGrpcClient(final Channel channel) {
-    // 'channel' here is a Channel, not a ManagedChannel, so it is not this code's responsibility to
-    // shut it down.
-
     // Passing Channels to code makes code easier to test and makes it easier to reuse Channels.
     blockingStub = TptpParserGrpc.newBlockingStub(channel);
   }
 
-  /** Send a string to parse to server. */
+  /**
+   * Send a string to parse to server.
+   *
+   * @param tptpString logic formula(s) in TPTP syntax
+   * @return the root node of a parsed TPTP file
+   */
   public final Node parseTptp(final String tptpString) {
     final StringMessage request = StringMessage.newBuilder().setStringMessage(tptpString).build();
     final Node response = blockingStub.parseTptp(request);
     return response;
   }
 
+  /**
+   * Extract server address from the argument list.
+   *
+   * @param args arguments passed to the {@code main}
+   * @return server address (with port)
+   */
   private static final String getTarget(final String[] args) {
     if (args.length > 1) {
       return args[1];
@@ -61,6 +74,11 @@ public final class TptpGrpcClient {
     return targetDefault;
   }
 
+  /**
+   * Extract the TPTP text to parse from the argument list.
+   * @param args arguments passed to the {@code main}
+   * @return a TPTP text
+   */
   private static final String getCnfString(final String[] args) {
     if (args.length > 0) {
       if ("--help".equals(args[0])) {
@@ -77,10 +95,15 @@ public final class TptpGrpcClient {
   }
 
   /**
-   * Parse . If provided, the first element of {@code args} is the TPTP  string to parse.
-   * The second argument is the target server.
+   * Parse.
+   *
+   * @param args two arguments (both not required): <ol>
+   *     <li> the TPTP string to parse </li>
+   *     <li> the target server </li>
+   *     </ol>
+   * @throws InterruptedException if can't shutdown the channel
    */
-  public static final void main(final String[] args) throws Exception {
+  public static final void main(final String[] args) throws InterruptedException {
     // Allow passing in the user and target strings as command line arguments
     final String cnfString = getCnfString(args);
     // Access a service running on the local machine on port 50051

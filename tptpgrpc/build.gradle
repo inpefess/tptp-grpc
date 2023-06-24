@@ -106,7 +106,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = "io.github.inpefess"
-            artifactId = "tptpgrpc"
+            artifactId = "tptp-grpc"
             version = "0.0.8"
             from components.java
             pom {

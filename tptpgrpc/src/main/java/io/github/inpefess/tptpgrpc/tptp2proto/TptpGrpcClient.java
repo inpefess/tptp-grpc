@@ -81,14 +81,6 @@ public final class TptpGrpcClient {
    */
   private static final String getCnfString(final String[] args) {
     if (args.length > 0) {
-      if ("--help".equals(args[0])) {
-        System.err.println("Usage: [cnfString [target]]");
-        System.err.println("");
-        System.err.println(
-            "  cnfString    The TPTP  string you wish to parse. Defaults to " + cnfStringDefault);
-        System.err.println("  target  The server to connect to. Defaults to " + targetDefault);
-        System.exit(1);
-      }
       return args[0];
     }
     return cnfStringDefault;
@@ -104,6 +96,16 @@ public final class TptpGrpcClient {
    * @throws InterruptedException if can't shutdown the channel
    */
   public static final void main(final String[] args) throws InterruptedException {
+    if (args.length > 0) {
+      if ("--help".equals(args[0])) {
+        System.err.println("Usage: [cnfString [target]]");
+        System.err.println("");
+        System.err.println(
+            "  cnfString    The TPTP  string you wish to parse. Defaults to " + cnfStringDefault);
+        System.err.println("  target  The server to connect to. Defaults to " + targetDefault);
+        return;
+      }
+    }
     // Allow passing in the user and target strings as command line arguments
     final String cnfString = getCnfString(args);
     // Access a service running on the local machine on port 50051

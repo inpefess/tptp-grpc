@@ -20,6 +20,9 @@ package io.github.inpefess.tptpgrpc.tptp2proto;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test starting the server and basic requests from a client.
+ */
 public final class TptpParserServerTest {
   private final class ServerThread extends Thread {
     public void run() {

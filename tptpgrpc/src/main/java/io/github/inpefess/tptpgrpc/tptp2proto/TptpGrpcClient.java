@@ -76,6 +76,7 @@ public final class TptpGrpcClient {
 
   /**
    * Extract the TPTP text to parse from the argument list.
+   *
    * @param args arguments passed to the {@code main}
    * @return a TPTP text
    */

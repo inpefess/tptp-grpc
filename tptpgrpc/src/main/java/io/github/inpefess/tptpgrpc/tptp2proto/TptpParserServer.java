@@ -75,7 +75,11 @@ public final class TptpParserServer {
   }
 
   /**
-   * Main launches the server from the command line.
+   * Launch the server from the command line.
+   *
+   * @param args command line arguments (not used)
+   * @throws IOException if unable to bind
+   * @throws InterruptedException if server process interrupted
    */
   public static final void main(final String[] args) throws IOException, InterruptedException {
     final TptpParserServer server = new TptpParserServer();

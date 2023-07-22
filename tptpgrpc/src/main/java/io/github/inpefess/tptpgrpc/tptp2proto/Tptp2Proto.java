@@ -40,9 +40,9 @@ import com.theoremsandstuff.tptp.parser.cnf_or;
 import com.theoremsandstuff.tptp.parser.cnf_root;
 import com.theoremsandstuff.tptp.parser.cnf_var;
 import com.theoremsandstuff.tptp.parser.include;
+import io.github.inpefess.tptpgrpc.tptpproto.Node;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.parser.IParser;
-import io.github.inpefess.tptpgrpc.tptpproto.Node;
 
 /**
  * Parse TPTP problems into protobuf objects.

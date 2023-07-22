@@ -44,6 +44,8 @@ Node parsedProto = tptp2Proto.tptp2Proto(cnfReader);
 
 # How to run the server
 
+1. Using Gradle:
+
 ```sh
 git clone https://github.com/inpefess/tptp-grpc.git
 cd ./tptp-grpc
@@ -62,6 +64,12 @@ Then from a different terminal start an example Java client:
 
 ```sh
 ./gradlew run -PmainClassToRun=io.github.inpefess.tptpgrpc.tptp2proto.TptpGrpcClient
+```
+
+2. Using Docker:
+
+```sh
+docker run -p 50051:50051 inpefess/tptp-grpc
 ```
 
 # To run a bulk parsing

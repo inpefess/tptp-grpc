@@ -1,3 +1,5 @@
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.inpefess/tptp-grpc)](https://mvnrepository.com/artifact/io.github.inpefess/tptp-grpc)[![javadoc](https://javadoc.io/badge2/io.github.inpefess/tptp-grpc/javadoc.svg)](https://javadoc.io/doc/io.github.inpefess/tptp-grpc)
+
 # TPTP gRPC
 
 This repo contains:

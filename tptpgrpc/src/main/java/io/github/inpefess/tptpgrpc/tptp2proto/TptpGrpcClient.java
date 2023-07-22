@@ -97,21 +97,17 @@ public final class TptpGrpcClient {
    * @throws InterruptedException if can't shutdown the channel
    */
   public static final void main(final String[] args) throws InterruptedException {
-    if (args.length > 0) {
-      if ("--help".equals(args[0])) {
-        System.err.println("Usage: [cnfString [target]]");
-        System.err.println("");
-        System.err.println(
-            "  cnfString    The TPTP  string you wish to parse. Defaults to " + cnfStringDefault);
-        System.err.println("  target  The server to connect to. Defaults to " + targetDefault);
-        return;
-      }
-    }
     // Allow passing in the user and target strings as command line arguments
     final String cnfString = getCnfString(args);
+    if ("--help".equals(cnfString)) {
+      System.err
+          .println("Usage: [cnfString [target]]\n  cnfString  The TPTP string you wish to parse."
+              + " Defaults to " + cnfStringDefault
+              + "\n  target     The server to connect to. Defaults to " + targetDefault);
+      return;
+    }
     // Access a service running on the local machine on port 50051
     final String target = getTarget(args);
-
     // Create a communication channel to the server, known as a Channel. Channels are thread-safe
     // and reusable. It is common to create channels at the beginning of your application and reuse
     // them until the application shuts down.

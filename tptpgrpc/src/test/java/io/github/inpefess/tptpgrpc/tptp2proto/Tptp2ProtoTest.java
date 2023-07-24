@@ -24,6 +24,9 @@ import java.io.InputStreamReader;
 import io.github.inpefess.tptpgrpc.tptpproto.Node;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test parsing a TPTP problem to a serialised protobuf.
+ */
 public final class Tptp2ProtoTest {
   @Test
   public final void tptpCnf2ProtoTest() throws FileNotFoundException, IOException {

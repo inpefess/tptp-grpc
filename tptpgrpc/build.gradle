@@ -151,9 +151,9 @@ signing {
     sign publishing.publications.mavenJava
 }
 
-
 javadoc {
     source = sourceSets.main.allJava
+    exclude "io/github/inpefess/tptpgrpc/tptpproto"
     if(JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption("html5", true)
     }

@@ -1,0 +1,28 @@
+plugins {
+    id "application"
+}
+
+repositories {
+    mavenCentral()
+    // TPTP parser https://github.com/marklemay/tptpParser
+    maven {
+        url "https://raw.github.com/marklemay/tptpParser/mvn-repo/"
+    }
+}
+
+dependencies {
+    implementation 'io.github.inpefess:tptpgrpc:0.0.7'
+
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    implementation 'com.google.protobuf:protobuf-java:3.23.0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+application {
+    mainClass = "io.github.inpefess.tptpgrpc.tptp2proto.TptpParserServer"
+}

@@ -29,7 +29,8 @@ import org.junit.jupiter.api.Test;
  */
 public final class Tptp2ProtoTest {
   @Test
-  public final void tptpCnf2ProtoTest() throws FileNotFoundException, IOException {
+  public final void tptpCnf2ProtoTest()
+      throws FileNotFoundException, IOException, TptpSyntaxErrorException {
     final Tptp2Proto tptp2Proto =
         new Tptp2Proto(this.getClass().getResource("/TPTP-mock").getPath());
     final InputStream testProblem =

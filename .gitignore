@@ -14,3 +14,5 @@ gradle.properties
 *~
 
 venv/
+*.pyi
+__pycache__/

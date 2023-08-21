@@ -93,3 +93,18 @@ To prepare labels for graph classification task:
 ```sh
 cat problem-list.txt | xargs -I {} grep -E "^%\ Status\ +:\ " {} | cut -d ":" -f 2 | sed "s/ Satisfiable/0/" | sed "s/ Unsatisfiable/1/" > labels.txt
 ```
+
+# Generate and use a Python client
+
+After starting a server as indicated above use the following code to
+generate ``grpc`` server and client code (we won't use former in this
+example):
+
+```sh
+cd python
+pip install -r requirements.txt
+python -m grpc_tools.protoc -I../tptpgrpc/src/main/proto/io/github/inpefess/tptp_grpc/ --python_out=. --pyi_out=. --grpc_python_out=. ../tptpgrpc/src/main/proto/io/github/inpefess/tptp_grpc/tptp_proto/tptp_parser.proto
+```
+
+Then see ``python/test_client.py`` as an example of using the
+generated Python client.

@@ -74,7 +74,7 @@ Then from a different terminal start an example Java client:
 docker run -p 50051:50051 inpefess/tptp-grpc
 ```
 
-# To run a bulk parsing
+# To run bulk parsing
 
 Prepare the list of problems and the output folder, e.g.:
 

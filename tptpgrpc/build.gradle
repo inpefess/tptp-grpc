@@ -36,7 +36,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:5.9.1"
 
     // This dependency is used by the application.
-    implementation "com.google.guava:guava:31.1-jre"
+    implementation "com.google.guava:guava:32.1.2-jre"
 
     // TPTP parser https://github.com/marklemay/tptpParser
     implementation "tptp:parser:0.0.6-SNAPSHOT"

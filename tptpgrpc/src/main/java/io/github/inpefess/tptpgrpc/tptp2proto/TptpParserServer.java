@@ -104,6 +104,9 @@ public final class TptpParserServer {
         responseObserver.onCompleted();
       } catch (final IOException e) {
         logger.severe(e.getMessage());
+      } catch (final TptpSyntaxErrorException e) {
+        responseObserver
+            .onError(io.grpc.Status.INTERNAL.withDescription(e.getMessage()).asException());
       }
     }
   }

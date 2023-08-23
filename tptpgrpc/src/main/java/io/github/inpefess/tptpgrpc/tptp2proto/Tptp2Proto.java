@@ -42,6 +42,7 @@ import com.theoremsandstuff.tptp.parser.cnf_var;
 import com.theoremsandstuff.tptp.parser.include;
 import io.github.inpefess.tptpgrpc.tptpproto.Node;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.parser.IParseResult;
 import org.eclipse.xtext.parser.IParser;
 
 /**
@@ -69,11 +70,17 @@ public final class Tptp2Proto {
    * @param reader a reader of a TPTP problem
    * @return a protobuf object representing the parsed TPTP problem
    * @throws IOException if encounters errors when reading the problem
+   * @throws TptpSyntaxErrorException on syntax error
    */
-  public final Node tptp2Proto(final Reader reader) throws IOException {
+  public final Node tptp2Proto(final Reader reader) throws IOException, TptpSyntaxErrorException {
     final ParsingResult parsedTptp = ParsingResult.emptyParsingResult();
     parsedTptp.nodeBuilder.setValue("&");
-    for (final EObject entry : parser.parse(reader).getRootASTElement().eContents()) {
+    IParseResult parseResult = parser.parse(reader);
+    if (parseResult.hasSyntaxErrors()) {
+      throw new TptpSyntaxErrorException(
+          parseResult.getSyntaxErrors().iterator().next().getSyntaxErrorMessage().getMessage());
+    }
+    for (final EObject entry : parseResult.getRootASTElement().eContents()) {
       if (entry instanceof cnf_root) {
         final cnf_or clause = ((cnf_root) entry).getExp().getDisjunction();
         parsedTptp.addChild(transform_clause(clause));
@@ -87,7 +94,7 @@ public final class Tptp2Proto {
   }
 
   private final void parseInclude(final ParsingResult parsedTptp, final include entry)
-      throws IOException {
+      throws IOException, TptpSyntaxErrorException {
     final File includedFile = Paths.get(tptpPath, entry.getPath()).toFile();
     try (final FileReader includedFileReader = new FileReader(includedFile)) {
       final List<Node> includedEntries = tptp2Proto(includedFileReader).getChildList();
@@ -183,8 +190,9 @@ public final class Tptp2Proto {
    *     <li> absolute path to the output folder (should exist and be empty) </li>
    *     </ol>
    * @throws IOException if there are any error when reading TPTP problems
+   * @throws TptpSyntaxErrorException on syntax error
    */
-  public static final void main(final String[] args) throws IOException {
+  public static final void main(final String[] args) throws IOException, TptpSyntaxErrorException {
     final Tptp2Proto tptp2Proto = new Tptp2Proto(args[0]);
     try (final FileInputStream fileInputStream = new FileInputStream(args[1]);
         final Scanner problemList = new Scanner(fileInputStream)) {

@@ -12,3 +12,7 @@ build
 bin/
 gradle.properties
 *~
+
+venv/
+*.pyi
+__pycache__/

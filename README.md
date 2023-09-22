@@ -1,4 +1,4 @@
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.inpefess/tptp-grpc)](https://mvnrepository.com/artifact/io.github.inpefess/tptp-grpc)[![javadoc](https://javadoc.io/badge2/io.github.inpefess/tptp-grpc/javadoc.svg)](https://javadoc.io/doc/io.github.inpefess/tptp-grpc)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.inpefess/tptp-grpc)](https://mvnrepository.com/artifact/io.github.inpefess/tptp-grpc)[![javadoc](https://javadoc.io/badge2/io.github.inpefess/tptp-grpc/javadoc.svg)](https://javadoc.io/doc/io.github.inpefess/tptp-grpc) [![codecov](https://codecov.io/gh/inpefess/tptp-grpc/graph/badge.svg?token=AQJA995YPE)](https://codecov.io/gh/inpefess/tptp-grpc)
 
 # TPTP gRPC
 

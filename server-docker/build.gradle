@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.github.inpefess:tptpgrpc:0.0.10'
+    implementation 'io.github.inpefess:tptpgrpc:0.0.11'
 
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     implementation 'com.google.protobuf:protobuf-java:3.24.3'
